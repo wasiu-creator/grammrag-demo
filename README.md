@@ -20,6 +20,7 @@ It consolidates and supersedes `BACKUP_pipeline_illustrated.html` and
 retrieve → score → assemble → generate → evaluate. Each stage shows *what happens*, *what was
 measured*, and *the artifact it produced*, with a guide note underneath. Step with the buttons,
 the arrow keys, or press **Play all**.
+<img width="1920" height="1080" alt="chrome_nTGeo2l4uf" src="https://github.com/user-attachments/assets/53d24e4e-cf0a-444b-b969-e26d99c298ea" />
 
 Three stages carry a purpose-built artifact. Stage 01 opens the actual source PDF in a modal.
 Stage 03 draws the subgraph induced on the gold evidence page, with its typed edges colour-coded,
@@ -34,6 +35,7 @@ generation and evaluation are all visible side by side:
 | GraMM-RAG | 3 pages | system under study |
 | Flat-vector k = 3 | 3 pages | **page-matched control** — every delta on the poster and in the dissertation is against this |
 | Flat-vector k = 2 | 2 pages | unmatched control — the one that overstates gains by 14–120% |
+<img width="1920" height="1080" alt="chrome_I9z1CpCgds" src="https://github.com/user-attachments/assets/b21561f3-c354-44e7-add4-1695bccfcbbb" />
 
 **Flip the case** with the two buttons at the top:
 
@@ -51,6 +53,7 @@ generation and evaluation are all visible side by side:
 coloured by AUC as a detector of answerability. Drag the sliders, switch corpora, or run the grid
 search and watch the optimum walk to the `c = 0` edge. Marginals reproduce Table 31 to four
 decimals.
+<img width="1920" height="1080" alt="chrome_wxJjdZrOjM" src="https://github.com/user-attachments/assets/ce357d41-623c-454d-9f4b-c3a87a4a4db5" />
 
 **Falsification** — seven claims, each with the experiment written down before the measurement.
 Pick one and press **Run the falsifier**; the four steps reveal in sequence. Below it, the full
