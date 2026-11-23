@@ -1,0 +1,728 @@
+{
+ "cases": {
+  "q507": {
+   "qidx": 507,
+   "doc": {
+    "hash": "8dfc21ec151fb9d3578fc32d5c4e5df9",
+    "title": "College Board Search \u2014 Help &amp; Reference",
+    "blurb": "US non-profit reference manual. Page 8 is the EPS geographic-market lookup table.",
+    "pages": 18,
+    "type": "Guidebook",
+    "elements": 336,
+    "by_type": {
+     "section": 201,
+     "table": 7,
+     "text": 112,
+     "figure": 16
+    },
+    "by_page": {
+     "1": 16,
+     "2": 3,
+     "3": 19,
+     "4": 8,
+     "5": 33,
+     "6": 24,
+     "7": 28,
+     "8": 17,
+     "9": 30,
+     "10": 11,
+     "11": 20,
+     "12": 30,
+     "13": 32,
+     "15": 29,
+     "16": 9,
+     "17": 10,
+     "18": 17
+    },
+    "temporal_elems": 0
+   },
+   "question": {
+    "text": "What's the geographic market name for EPS Code AR01?",
+    "gold": "Little Rock",
+    "gold_pages": [
+     8
+    ],
+    "evidence_sources": [
+     "Pure-text (Plain-text)"
+    ],
+    "answer_format": "Str"
+   },
+   "parse": {
+    "gold_page": 8,
+    "elements_on_gold_page": [
+     {
+      "id": "p8_e131",
+      "type": "figure",
+      "ro": 131,
+      "text": ""
+     },
+     {
+      "id": "p8_e132",
+      "type": "section",
+      "ro": 132,
+      "text": "EPS Code"
+     },
+     {
+      "id": "p8_e133",
+      "type": "section",
+      "ro": 133,
+      "text": "Geographic Market Name"
+     },
+     {
+      "id": "p8_e134",
+      "type": "section",
+      "ro": 134,
+      "text": "Arkansas (AR)"
+     },
+     {
+      "id": "p8_e135",
+      "type": "section",
+      "ro": 135,
+      "text": "1. Little Rock AR01 2. Northern Arkansas AR02"
+     },
+     {
+      "id": "p8_e136",
+      "type": "section",
+      "ro": 136,
+      "text": "New Mexico (NM)"
+     },
+     {
+      "id": "p8_e137",
+      "type": "text",
+      "ro": 137,
+      "text": "1. Albuquerque and Northern New Mexico NM01 2. Southern New Mexico NM02"
+     },
+     {
+      "id": "p8_e138",
+      "type": "section",
+      "ro": 138,
+      "text": "Oklahoma (OK)"
+     },
+     {
+      "id": "p8_e139",
+      "type": "section",
+      "ro": 139,
+      "text": "1. Oklahoma City and Western Oklahoma OK01 2. Tulsa and Eastern Oklahoma OK02"
+     },
+     {
+      "id": "p8_e140",
+      "type": "section",
+      "ro": 140,
+      "text": "Texas (TX)"
+     },
+     {
+      "id": "p8_e141",
+      "type": "section",
+      "ro": 141,
+      "text": "EPS"
+     },
+     {
+      "id": "p8_e142",
+      "type": "section",
+      "ro": 142,
+      "text": "1. Amarillo, Panhandle, and South Plains TX01 2. El Paso TX02 3. Midland, Odessa, and Trans Pecos TX03 4. Abilene and San Angelo TX04 5. Red River Area TX05 6. Austin and Central Texas TX06 7. Waco, Temple, and Killeen TX07 8. Eas"
+     },
+     {
+      "id": "p8_e143",
+      "type": "section",
+      "ro": 143,
+      "text": "Geographic Market Name Code"
+     },
+     {
+      "id": "p8_e144",
+      "type": "section",
+      "ro": 144,
+      "text": "16. Southwest Houston Metro Area TX16 17. City of Houston (East) TX17 18. Galveston and East Harris Counties TX18 19. City of Dallas TX19 20. City of Fort Worth TX20 21. Irving, Arlington, and Grand Prairie TX21 22. Dallas County "
+     },
+     {
+      "id": "p8_e145",
+      "type": "section",
+      "ro": 145,
+      "text": "Major Metropolitan Area"
+     },
+     {
+      "id": "p8_e146",
+      "type": "section",
+      "ro": 146,
+      "text": "Southwestern Region"
+     },
+     {
+      "id": "p8_e147",
+      "type": "text",
+      "ro": 147,
+      "text": "1. Texas Greater San Antonio: 13 and 14 Greater Houston: 15 through 18 Greater Dallas \u2013 Fort Worth: 19 through 24"
+     }
+    ]
+   },
+   "graph": {
+    "nodes": 336,
+    "edges": {
+     "reading_order": 312,
+     "hierarchy": 135,
+     "spatial": 38
+    },
+    "total": 485,
+    "examples": {
+     "reading_order": [
+      [
+       "p1_e0",
+       "p1_e2"
+      ],
+      [
+       "p1_e2",
+       "p1_e3"
+      ],
+      [
+       "p1_e3",
+       "p1_e4"
+      ]
+     ],
+     "hierarchy": [
+      [
+       "p1_e0",
+       "p1_e1"
+      ],
+      [
+       "p1_e2",
+       "p1_e3"
+      ],
+      [
+       "p1_e4",
+       "p1_e5"
+      ]
+     ],
+     "spatial": [
+      [
+       "p1_e0",
+       "p1_e1"
+      ],
+      [
+       "p1_e4",
+       "p1_e5"
+      ],
+      [
+       "p1_e7",
+       "p1_e8"
+      ]
+     ]
+    }
+   },
+   "retrieve": {
+    "ranked_raw": [
+     8,
+     10,
+     4,
+     17,
+     3,
+     10,
+     1,
+     5,
+     7,
+     6
+    ],
+    "ranked": [
+     8,
+     10,
+     4,
+     17,
+     3,
+     1,
+     5,
+     7,
+     6
+    ],
+    "route": "HYBRID"
+   },
+   "score": {
+    "U": 0.3254,
+    "tau": 0.0,
+    "decision": "answer",
+    "refused": false
+   },
+   "arms": {
+    "gramm": {
+     "context": [
+      3,
+      8,
+      11
+     ],
+     "pred": "Little Rock",
+     "anls": 1.0,
+     "hit": true
+    },
+    "k3": {
+     "context": [
+      3,
+      11,
+      13
+     ],
+     "pred": "Arkansas (AR)",
+     "anls": 0.0,
+     "hit": false
+    },
+    "k2": {
+     "context": [
+      3,
+      11
+     ],
+     "pred": "Arkansas",
+     "anls": 0.0,
+     "hit": false
+    }
+   },
+   "components": {
+    "C": 0.5,
+    "S": 0.0634,
+    "T": 0.5,
+    "w": [
+     0.4,
+     0.4,
+     0.2
+    ],
+    "U_recomputed": 0.325357,
+    "U_archived": 0.3254,
+    "note": "The run stored only the total, never the three component scores. They are recomputed here by restoring the archived retrieval configuration and re-scoring the same question, then checked against the stored total: they reproduce it to within 0.0001."
+   },
+   "subgraph": {
+    "nodes": [
+     {
+      "id": "p8_e131",
+      "t": "figure",
+      "l": "[image]"
+     },
+     {
+      "id": "p8_e132",
+      "t": "section",
+      "l": "EPS Code"
+     },
+     {
+      "id": "p8_e133",
+      "t": "section",
+      "l": "Geographic Market Name"
+     },
+     {
+      "id": "p8_e134",
+      "t": "section",
+      "l": "Arkansas (AR)"
+     },
+     {
+      "id": "p8_e135",
+      "t": "section",
+      "l": "1. Little Rock AR01 2. Northern Arkans"
+     },
+     {
+      "id": "p8_e136",
+      "t": "section",
+      "l": "New Mexico (NM)"
+     },
+     {
+      "id": "p8_e137",
+      "t": "text",
+      "l": "1. Albuquerque and Northern New Mexico"
+     },
+     {
+      "id": "p8_e138",
+      "t": "section",
+      "l": "Oklahoma (OK)"
+     },
+     {
+      "id": "p8_e139",
+      "t": "section",
+      "l": "1. Oklahoma City and Western Oklahoma "
+     },
+     {
+      "id": "p8_e140",
+      "t": "section",
+      "l": "Texas (TX)"
+     },
+     {
+      "id": "p8_e141",
+      "t": "section",
+      "l": "EPS"
+     },
+     {
+      "id": "p8_e142",
+      "t": "section",
+      "l": "1. Amarillo, Panhandle, and South Plai"
+     },
+     {
+      "id": "p8_e143",
+      "t": "section",
+      "l": "Geographic Market Name Code"
+     },
+     {
+      "id": "p8_e144",
+      "t": "section",
+      "l": "16. Southwest Houston Metro Area TX16 "
+     }
+    ],
+    "edges": [
+     [
+      1,
+      2,
+      "reading_order"
+     ],
+     [
+      2,
+      3,
+      "reading_order"
+     ],
+     [
+      3,
+      4,
+      "reading_order"
+     ],
+     [
+      4,
+      5,
+      "reading_order"
+     ],
+     [
+      5,
+      6,
+      "reading_order"
+     ],
+     [
+      6,
+      7,
+      "reading_order"
+     ],
+     [
+      7,
+      8,
+      "reading_order"
+     ],
+     [
+      8,
+      9,
+      "reading_order"
+     ],
+     [
+      9,
+      10,
+      "reading_order"
+     ],
+     [
+      10,
+      11,
+      "reading_order"
+     ],
+     [
+      11,
+      12,
+      "reading_order"
+     ],
+     [
+      12,
+      13,
+      "reading_order"
+     ],
+     [
+      5,
+      6,
+      "hierarchy"
+     ]
+    ],
+    "page": 8,
+    "truncated": true
+   }
+  },
+  "q823": {
+   "qidx": 823,
+   "doc": {
+    "hash": "698bba535087fa9a7f9009e172a7f763",
+    "title": "Hamilton County \u2014 Nebraska Historic Buildings Survey",
+    "blurb": "US state historic-preservation survey. Page 11 carries a captioned location map.",
+    "pages": 20,
+    "type": "Research report / Introduction",
+    "elements": 104,
+    "by_type": {
+     "figure": 16,
+     "text": 70,
+     "section": 15,
+     "table": 3
+    },
+    "by_page": {
+     "1": 4,
+     "3": 6,
+     "5": 5,
+     "7": 6,
+     "8": 3,
+     "9": 8,
+     "10": 6,
+     "11": 6,
+     "12": 6,
+     "13": 8,
+     "14": 6,
+     "15": 5,
+     "16": 6,
+     "17": 6,
+     "18": 5,
+     "19": 11,
+     "20": 7
+    },
+    "temporal_elems": 25
+   },
+   "question": {
+    "text": "How many square miles does the Hamilton country covers according to the document? Give me an appropriate integer.",
+    "gold": "538",
+    "gold_pages": [
+     11
+    ],
+    "evidence_sources": [
+     "Pure-text (Plain-text)"
+    ],
+    "answer_format": "Int"
+   },
+   "parse": {
+    "gold_page": 11,
+    "elements_on_gold_page": [
+     {
+      "id": "p11_e38",
+      "type": "figure",
+      "ro": 38,
+      "text": "Figure 1. Location of Hamilton County and its communities."
+     },
+     {
+      "id": "p11_e39",
+      "type": "text",
+      "ro": 39,
+      "text": "66-1/3 miles of lines were in operation in Hamilton County. By 1927, Hamilton County had direct railroad connection from \u201cAurora to Omaha, Lincoln, and other important cities of Nebraska,\u201d providing markets for farm products, \u201cesp"
+     },
+     {
+      "id": "p11_e40",
+      "type": "text",
+      "ro": 40,
+      "text": "Several major automobile routes serve Hamilton County. State Highway 14 connects Central City to Aurora and continues on south, and US Highway 34 runs east to west from York to Grand Island across the county. Additionally, Interst"
+     },
+     {
+      "id": "p11_e41",
+      "type": "text",
+      "ro": 41,
+      "text": "Hamilton County is located in the southeastern part of the state in a physical region known as the Central Loess Plains. Andreas (1882) in the History of the State of Nebraska described this area as the \u201cgarden portion of the stat"
+     },
+     {
+      "id": "p11_e42",
+      "type": "section",
+      "ro": 42,
+      "text": "Initial Settlement and Ethnic Clusters"
+     },
+     {
+      "id": "p11_e43",
+      "type": "text",
+      "ro": 43,
+      "text": "Hamilton County\u2019s first permanent settlement took place in June of 1866 on the"
+     }
+    ]
+   },
+   "graph": {
+    "nodes": 104,
+    "edges": {
+     "reading_order": 84,
+     "hierarchy": 85,
+     "spatial": 13,
+     "temporal": 38
+    },
+    "total": 220,
+    "examples": {
+     "reading_order": [
+      [
+       "p1_e1",
+       "p3_e4"
+      ],
+      [
+       "p3_e4",
+       "p3_e5"
+      ],
+      [
+       "p3_e5",
+       "p3_e6"
+      ]
+     ],
+     "hierarchy": [
+      [
+       "p3_e4",
+       "p3_e5"
+      ],
+      [
+       "p3_e4",
+       "p3_e6"
+      ],
+      [
+       "p3_e4",
+       "p3_e7"
+      ]
+     ],
+     "spatial": [
+      [
+       "p12_e44",
+       "p12_e45"
+      ],
+      [
+       "p13_e55",
+       "p13_e54"
+      ],
+      [
+       "p16_e72",
+       "p16_e71"
+      ]
+     ],
+     "temporal": [
+      [
+       "p5_e11",
+       "p15_e67",
+       "2008"
+      ],
+      [
+       "p9_e30",
+       "p17_e79",
+       "2000"
+      ],
+      [
+       "p10_e32",
+       "p14_e62",
+       "1900"
+      ]
+     ]
+    }
+   },
+   "retrieve": {
+    "ranked_raw": [
+     11,
+     12,
+     12,
+     15,
+     17,
+     19,
+     1,
+     17,
+     19,
+     13
+    ],
+    "ranked": [
+     11,
+     12,
+     15,
+     17,
+     19,
+     1,
+     13
+    ],
+    "route": "HYBRID"
+   },
+   "score": {
+    "U": 0.4124,
+    "tau": 0.0,
+    "decision": "answer",
+    "refused": false
+   },
+   "arms": {
+    "gramm": {
+     "context": [
+      11,
+      14,
+      17
+     ],
+     "pred": "538",
+     "anls": 1.0,
+     "hit": true
+    },
+    "k3": {
+     "context": [
+      11,
+      14,
+      17
+     ],
+     "pred": "538",
+     "anls": 1.0,
+     "hit": true
+    },
+    "k2": {
+     "context": [
+      14,
+      17
+     ],
+     "pred": "552",
+     "anls": 0.0,
+     "hit": false
+    }
+   },
+   "components": {
+    "C": 1.0,
+    "S": 0.0309,
+    "T": 0.0,
+    "w": [
+     0.4,
+     0.4,
+     0.2
+    ],
+    "U_recomputed": 0.412374,
+    "U_archived": 0.4124,
+    "note": "The run stored only the total, never the three component scores. They are recomputed here by restoring the archived retrieval configuration and re-scoring the same question, then checked against the stored total: they reproduce it to within 0.0001."
+   },
+   "subgraph": {
+    "nodes": [
+     {
+      "id": "p11_e38",
+      "t": "figure",
+      "l": "Figure 1. Location of Hamilton County "
+     },
+     {
+      "id": "p11_e39",
+      "t": "text",
+      "l": "66-1/3 miles of lines were in operatio"
+     },
+     {
+      "id": "p11_e40",
+      "t": "text",
+      "l": "Several major automobile routes serve "
+     },
+     {
+      "id": "p11_e41",
+      "t": "text",
+      "l": "Hamilton County is located in the sout"
+     },
+     {
+      "id": "p11_e42",
+      "t": "section",
+      "l": "Initial Settlement and Ethnic Clusters"
+     },
+     {
+      "id": "p11_e43",
+      "t": "text",
+      "l": "Hamilton County\u2019s first permanent sett"
+     }
+    ],
+    "edges": [
+     [
+      1,
+      2,
+      "reading_order"
+     ],
+     [
+      2,
+      3,
+      "reading_order"
+     ],
+     [
+      3,
+      4,
+      "reading_order"
+     ],
+     [
+      4,
+      5,
+      "reading_order"
+     ],
+     [
+      4,
+      5,
+      "hierarchy"
+     ]
+    ],
+    "page": 11,
+    "truncated": false
+   }
+  }
+ }
+}

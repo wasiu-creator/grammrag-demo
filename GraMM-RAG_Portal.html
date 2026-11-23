@@ -1,0 +1,1027 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2064%2064'%3E%3Crect%20width='64'%20height='64'%20rx='14'%20ry='14'%20fill='%230d1117'/%3E%3Ctext%20x='32'%20y='46'%20text-anchor='middle'%20fill='%23C8A95C'%20font-family='Arial%2CHelvetica%2Csans-serif'%20font-size='44'%20font-weight='700'%3EG%3C/text%3E%3C/svg%3E">
+<title>GraMM-RAG | Interactive Portal</title>
+<style>
+:root{
+  --bg:#ffffff; --panel:#ffffff; --panel2:#f6f7f9; --line:#dde2e8;
+  --black:#0d1117; --black2:#171d26;
+  --gold:#8F6F1E; --gold-br:#C8A95C; --gold-dim:#A98B3A; --gold-soft:#FAF4E4;
+  --ink:#0f1419; --mute:#525c6b; --faint:#8a94a2;
+  --good:#1C7A4E; --bad:#B3332F; --warn:#A8721B; --blue:#2F5FA8;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --sans:"Segoe UI",Inter,Arial,Helvetica,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.6 var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--gold)}
+h1,h2,h3,h4{margin:0;font-weight:700;letter-spacing:-.01em}
+.wrap{max-width:1400px;margin:0 auto;padding:0 28px}
+
+/* ---------- top bar ---------- */
+header{position:sticky;top:0;z-index:50;background:#fff;border-bottom:2px solid var(--black);overflow:visible}
+.bar{display:flex;align-items:center;gap:26px;min-height:86px;
+  padding-top:16px;padding-bottom:16px;flex-wrap:wrap;overflow:visible}
+.brand{display:flex;align-items:center;gap:10px;flex:0 0 auto;min-width:max-content;
+  padding:8px 6px 8px 0;overflow:visible}
+.brand .mk{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:7px;
+  background:var(--black);color:var(--gold-br);font:800 13px/1 var(--mono);flex:0 0 auto}
+.brand .wm{display:block;flex:0 0 auto;font:800 17px/1.9 var(--sans);color:var(--black);
+  padding:4px 4px 4px 0;letter-spacing:-.01em;white-space:nowrap;overflow:visible}
+nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+nav button{background:none;border:1px solid transparent;color:var(--mute);font:600 13px var(--sans);
+  padding:9px 15px;border-radius:7px;cursor:pointer;transition:.15s}
+nav button:hover{color:var(--black);background:var(--panel2)}
+nav button[aria-current=true]{color:var(--gold-br);background:var(--black);border-color:var(--black)}
+
+/* ---------- generic ---------- */
+.view{display:none;padding:28px 0 20px}
+.view.on{display:block}
+.lead{color:var(--mute);max-width:74ch}
+.eyebrow{font:700 11px var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:9px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.card h3{font-size:15px;margin-bottom:8px}
+.card.dark{background:var(--black);border-color:var(--black);color:#f2f4f7}
+.card.dark h3{color:var(--gold-br)}
+.card.dark .note{color:#c3cad4}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.sep{height:1px;background:var(--line);margin:26px 0}
+.note{color:var(--mute);font-size:13.5px}
+.tiny{font-size:12px;color:var(--faint)}
+.src{font:600 11px var(--mono);color:var(--gold);letter-spacing:.04em}
+code,.mono{font-family:var(--mono)}
+mark{background:var(--gold-soft);color:var(--gold);padding:0 3px;border-radius:3px;font-weight:600}
+.pill{display:inline-block;font:700 10.5px var(--sans);letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--mute);
+  white-space:nowrap;flex:0 0 auto}
+.pill.ok{color:var(--good);border-color:#A8D6BE;background:#EDF8F2}
+.pill.no{color:var(--bad);border-color:#EDB9B7;background:#FDF0EF}
+.pill.g{color:var(--gold);border-color:var(--gold-dim);background:var(--gold-soft)}
+button.act{background:#fff;border:1px solid var(--line);color:var(--ink);
+  font:600 13px var(--sans);padding:9px 16px;border-radius:8px;cursor:pointer;transition:.15s}
+button.act:hover{border-color:var(--gold-dim);color:var(--gold)}
+button.act.pri{background:var(--black);border-color:var(--black);color:var(--gold-br)}
+button.act.pri:hover{background:var(--black2);color:var(--gold-br)}
+button.act:disabled{opacity:.35;cursor:not-allowed}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th{text-align:left;font:700 11px var(--sans);letter-spacing:.1em;text-transform:uppercase;
+  color:var(--faint);padding:0 10px 8px;border-bottom:2px solid var(--line)}
+td{padding:9px 10px;border-bottom:1px solid var(--line)}
+td.num,th.num{text-align:right;font-family:var(--mono)}
+
+/* ---------- footer ---------- */
+footer{border-top:2px solid var(--black);margin-top:40px;background:var(--black);color:#aab3bf}
+footer .wrap{display:flex;gap:18px;align-items:center;flex-wrap:wrap;padding-top:20px;padding-bottom:20px}
+footer b{color:var(--gold-br);font-weight:700}
+footer .r{margin-left:auto;font-size:12px;color:#7e8794;text-align:right}
+
+/* ---------- modal ---------- */
+.modal{position:fixed;inset:0;z-index:200;background:rgba(13,17,23,.72);display:none;
+  padding:30px;backdrop-filter:blur(3px)}
+.modal.on{display:block}
+.modal .sheet{background:#fff;border-radius:12px;height:100%;display:flex;flex-direction:column;
+  overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4);max-width:1100px;margin:0 auto}
+.modal .mh{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid var(--line);
+  background:var(--black);color:#fff;flex-wrap:wrap}
+.modal .mh b{color:var(--gold-br);font-size:15px}
+.modal .mh span{font-size:12px;color:#aab3bf}
+.modal .mh button{margin-left:auto}
+.modal iframe{flex:1;width:100%;border:0;background:#52565c}
+</style>
+<style>
+/* ---------- hero ---------- */
+.hero{padding:40px 0 8px}
+.hero h1{font-size:37px;line-height:1.14;max-width:26ch;color:var(--black)}
+.hero h1 em{color:var(--gold);font-style:normal}
+.hero p{margin:16px 0 0;font-size:16.5px;color:var(--mute);max-width:72ch}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:30px 0 8px}
+.kpi{background:var(--black);border-radius:11px;padding:18px 20px;border-left:5px solid var(--gold-br)}
+.kpi b{display:block;font:800 31px/1 var(--sans);color:var(--gold-br);letter-spacing:-.02em}
+.kpi span{display:block;margin-top:8px;font-size:13px;color:#c3cad4}
+.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:24px}
+.tile{background:#fff;border:1px solid var(--line);border-radius:11px;padding:18px;
+  cursor:pointer;transition:.16s;text-align:left}
+.tile:hover{border-color:var(--gold-dim);box-shadow:0 4px 16px rgba(15,20,25,.08);transform:translateY(-2px)}
+.tile b{display:block;font-size:15px;margin-bottom:6px;color:var(--black)}
+.tile b i{color:var(--gold);font-style:normal;margin-right:7px;font-family:var(--mono)}
+.tile span{font-size:13px;color:var(--mute);line-height:1.5}
+
+/* ---------- case switch ---------- */
+.caserow{display:flex;gap:9px;align-items:stretch;flex-wrap:wrap;margin-bottom:12px}
+.casebtn{flex:1;min-width:270px;text-align:left;background:#fff;border:1px solid var(--line);
+  border-radius:10px;padding:10px 13px;cursor:pointer;transition:.15s;color:var(--mute);font:inherit}
+.casebtn:hover{border-color:var(--gold-dim)}
+.casebtn[aria-pressed=true]{border-color:var(--black);background:var(--black);color:#c3cad4}
+.casebtn[aria-pressed=true] b{color:var(--gold-br)}
+.casebtn b{display:block;color:var(--gold);font-size:13px;margin-bottom:2px}
+.casebtn span{font-size:12px;line-height:1.4;display:block}
+
+/* ---------- question header ---------- */
+.qhead{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:13px 17px;margin-bottom:12px}
+.qhead .doc{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+.qhead .q{font-size:17px;line-height:1.3;font-weight:600;color:var(--black)}
+.qhead .gold{margin-top:6px;font-size:13px;color:var(--mute)}
+.qhead .gold b{color:var(--gold);font-family:var(--mono)}
+
+/* ---------- stage rail ---------- */
+.rail{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-bottom:12px}
+.rail button{background:#fff;border:1px solid var(--line);border-radius:8px;padding:7px 9px;
+  cursor:pointer;text-align:left;transition:.15s;color:var(--mute);font:inherit}
+.rail button:hover{border-color:var(--gold-dim)}
+.rail button.done{border-color:var(--gold-dim);background:var(--gold-soft)}
+.rail button[aria-current=true]{border-color:var(--black);background:var(--black)}
+.rail button[aria-current=true] em{color:var(--gold-br)}
+.rail button[aria-current=true] i{color:#fff}
+.rail em{display:block;font:800 11px var(--mono);font-style:normal;color:var(--faint);margin-bottom:3px}
+.rail i{display:block;font-style:normal;font-size:12.5px;font-weight:600;color:var(--black);line-height:1.25}
+
+/* ---------- stage panel ---------- */
+.stage{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.stage .top{display:flex;align-items:flex-start;gap:14px;padding:16px 20px;background:var(--black)}
+.stage .no{flex:0 0 auto;width:36px;height:36px;border-radius:9px;background:var(--gold-br);color:var(--black);
+  display:grid;place-items:center;font:800 16px var(--mono)}
+.stage .ttl{flex:1}
+.stage .ttl h2{font-size:20px;color:#fff}
+.stage .ttl p{margin:4px 0 0;font-size:13.5px;color:#aab3bf}
+.stage .top .src{color:var(--gold-br)}
+.stage .body{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:0}
+.stage .left{padding:18px 20px;border-right:1px solid var(--line);background:var(--panel2)}
+.stage .right{padding:18px 20px;min-width:0}
+.stage h4{font:700 10.5px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin:0 0 8px}
+.stage .left p{margin:0 0 16px;font-size:13.5px;color:var(--ink);line-height:1.55}
+.meas{display:grid;gap:6px}
+.meas div{display:flex;justify-content:space-between;gap:12px;font-size:12.5px;
+  padding:6px 9px;background:#fff;border:1px solid var(--line);border-radius:6px}
+.meas span:first-child{color:var(--mute)}
+.meas span:last-child{font-family:var(--mono);color:var(--gold);font-weight:700}
+
+/* ---------- transport ---------- */
+.transport{display:flex;align-items:center;gap:9px;padding:13px 20px;border-top:1px solid var(--line);
+  background:var(--panel2);flex-wrap:wrap}
+.transport .spacer{flex:1}
+.guide{margin-top:14px;background:var(--black);border-left:5px solid var(--gold-br);
+  border-radius:9px;padding:14px 18px;font-size:13.5px;color:#c7ced7;line-height:1.6}
+.guide b{color:var(--gold-br)}
+.guide mark{background:rgba(200,169,92,.2);color:var(--gold-br)}
+
+/* ---------- artifact widgets ---------- */
+.scroller{max-height:430px;overflow:auto;padding-right:6px}
+.pstrip{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0 12px}
+.pg{width:30px;height:38px;border-radius:4px;border:1px solid var(--line);background:#fff;
+  display:grid;place-items:center;font:600 11px var(--mono);color:var(--faint);position:relative}
+.pg.ctx{border-color:var(--black);color:#fff;background:var(--black)}
+.pg.gold{border-color:var(--gold-dim);background:var(--gold-br);color:var(--black);font-weight:800}
+.pg.rank{border-color:var(--blue);color:var(--blue)}
+.pg i{position:absolute;top:-6px;right:-5px;font-style:normal;font:700 9px var(--mono);
+  background:var(--blue);color:#fff;border-radius:3px;padding:0 3px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--faint);margin-bottom:10px}
+.legend b{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:5px;
+  border:1px solid var(--line)}
+.bars{display:grid;gap:6px}
+.bar{display:grid;grid-template-columns:150px 1fr 64px;gap:10px;align-items:center;font-size:12.5px}
+.bar u{text-decoration:none;color:var(--mute);font-family:var(--mono)}
+.bar div{height:16px;background:var(--panel2);border-radius:4px;overflow:hidden;border:1px solid var(--line)}
+.bar div>i{display:block;height:100%;background:var(--gold-br);border-radius:3px}
+.bar s{text-decoration:none;text-align:right;font-family:var(--mono);color:var(--gold);font-weight:700}
+.els{display:grid;gap:5px}
+.el{display:grid;grid-template-columns:70px 46px 1fr;gap:9px;font-size:12px;align-items:start;
+  padding:7px 9px;background:var(--panel2);border:1px solid var(--line);border-radius:6px}
+.el b{font:700 9.5px var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--gold);padding-top:1px}
+.el u{text-decoration:none;font-family:var(--mono);color:var(--faint);font-size:11px}
+.el span{color:var(--ink);line-height:1.45}
+.el.key{border-color:var(--gold-dim);background:var(--gold-soft)}
+.ueq{background:var(--black);border-radius:10px;padding:18px 20px;margin:4px 0 14px;color:#fff}
+.ueq .line{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font:700 22px var(--mono);color:#fff}
+.ueq .line i{font-style:normal;color:var(--gold-br)}
+.ueq .line s{text-decoration:none;color:#7e8794;font-weight:400}
+.ueq .terms{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.ueq .tm{background:var(--black2);border-radius:8px;padding:10px 12px;border-left:3px solid var(--gold-br)}
+.ueq .tm b{display:block;font:800 19px var(--mono);color:var(--gold-br)}
+.ueq .tm span{display:block;font-size:11.5px;color:#aab3bf;margin-top:3px;line-height:1.4}
+.ueq .sum{margin-top:12px;font:700 15px var(--mono);color:var(--gold-br)}
+.ueq .sum s{text-decoration:none;color:#aab3bf;font-weight:400;font-size:12px;margin-left:8px}
+.arms{display:grid;gap:10px}
+.arm{border:1px solid var(--line);border-radius:9px;padding:12px 14px;background:var(--panel2)}
+.arm.me{border-color:var(--gold-dim);background:var(--gold-soft)}
+.arm .hd{display:flex;align-items:center;gap:9px;margin-bottom:8px;flex-wrap:wrap}
+.arm .hd b{font-size:13px;color:var(--black);flex:0 0 auto;white-space:nowrap}
+.arm .hd .ctxs{font-family:var(--mono);font-size:11.5px;color:var(--faint);white-space:nowrap}
+.arm .ans{font-family:var(--mono);font-size:12.5px;line-height:1.5;color:var(--ink);
+  background:#fff;border:1px solid var(--line);border-radius:6px;padding:9px 11px}
+.arm .ans.bad{border-color:#EDB9B7;background:#FDF5F4}
+.arm .ans.good{border-color:#A8D6BE;background:#F3FAF6}
+.quote{border-left:3px solid var(--gold-br);padding:4px 0 4px 13px;margin:10px 0;font-size:13px;
+  color:var(--ink);line-height:1.6;font-style:italic}
+.gsvg{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:8px}
+.gsvg svg{display:block;width:100%;height:auto}
+@media(max-width:1180px){
+  .stage .body{grid-template-columns:1fr}
+  .stage .left{border-right:0;border-bottom:1px solid var(--line)}
+  .rail{grid-template-columns:repeat(4,1fr)}
+  .kpis,.tiles,.g3,.g4{grid-template-columns:1fr 1fr}
+  .hero h1{font-size:30px}
+  .ueq .terms{grid-template-columns:1fr}
+}
+@media(max-width:680px){
+  .rail{grid-template-columns:repeat(2,1fr)}
+  .kpis,.tiles,.g2,.g3,.g4{grid-template-columns:1fr}
+  .wrap{padding:0 16px}
+}
+</style>
+<style>
+/* ---------- MAUF ---------- */
+.maufwrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,370px);gap:18px;align-items:start}
+.tri{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px}
+.tri svg{display:block;width:100%;max-width:600px;height:auto;margin:0 auto}
+.ctrls{display:grid;gap:14px}
+.sl{display:grid;gap:6px}
+.sl .row{display:flex;justify-content:space-between;align-items:baseline;font-size:13px}
+.sl .row b{color:var(--gold);font-family:var(--mono)}
+.sl input[type=range]{-webkit-appearance:none;width:100%;height:5px;border-radius:3px;background:var(--line);outline:none}
+.sl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--black);cursor:pointer;border:3px solid var(--gold-br)}
+.sl input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--black);
+  cursor:pointer;border:3px solid var(--gold-br)}
+.readout{background:var(--black);border-radius:10px;padding:16px 18px;color:#c3cad4}
+.readout .big{font:800 38px/1 var(--sans);color:var(--gold-br);letter-spacing:-.02em}
+.readout .big small{font:600 13px var(--sans);color:#8a94a2;margin-left:8px;letter-spacing:0}
+.readout .cmp{margin-top:12px;display:grid;gap:5px;font-size:12.5px}
+.readout .cmp div{display:flex;justify-content:space-between;gap:10px}
+.readout .cmp span:last-child{font-family:var(--mono);color:#fff}
+.corpbtns{display:flex;gap:6px;flex-wrap:wrap}
+.corpbtns button{flex:1;min-width:130px}
+.corpbtns button[aria-pressed=true]{background:var(--black);border-color:var(--black);color:var(--gold-br)}
+
+/* ---------- falsification ---------- */
+.fgrid{display:grid;grid-template-columns:minmax(0,310px) minmax(0,1fr);gap:18px;align-items:start}
+.flist{display:grid;gap:7px}
+.flist button{text-align:left;background:#fff;border:1px solid var(--line);border-radius:9px;
+  padding:11px 13px;cursor:pointer;color:var(--mute);font:inherit;transition:.15s}
+.flist button:hover{border-color:var(--gold-dim)}
+.flist button[aria-pressed=true]{border-color:var(--black);background:var(--black);color:#c3cad4}
+.flist b{display:flex;align-items:center;gap:8px;font:700 10px var(--mono);color:var(--faint);letter-spacing:.1em;margin-bottom:5px}
+.flist span{font-size:12.5px;line-height:1.4;display:block}
+.ostamp{display:inline-block;padding:2px 7px;border-radius:4px;border:1px solid;flex:0 0 auto}
+.ostamp.FALSIFIED,.ostamp.WITHDRAWN{color:var(--bad);border-color:#EDB9B7;background:#FDF0EF}
+.ostamp.NARROWED{color:var(--warn);border-color:#E6CFA0;background:#FCF6EA}
+.ostamp.HELD{color:var(--good);border-color:#A8D6BE;background:#EDF8F2}
+.fstep{border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:10px;
+  background:var(--panel2);opacity:.3;transition:opacity .35s, border-color .35s, background .35s}
+.fstep.on{opacity:1;border-color:var(--gold-dim);background:#fff}
+.fstep h5{margin:0 0 6px;font:700 10.5px var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--gold)}
+.fstep p{margin:0;font-size:13.5px;line-height:1.6}
+.verdict{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.verdict .stamp{font:800 13px var(--mono);letter-spacing:.14em;padding:7px 14px;border-radius:7px;border:2px solid}
+.stamp.FALSIFIED,.stamp.WITHDRAWN{color:var(--bad);border-color:var(--bad);background:#FDF0EF}
+.stamp.NARROWED{color:var(--warn);border-color:var(--warn);background:#FCF6EA}
+.stamp.HELD{color:var(--good);border-color:var(--good);background:#EDF8F2}
+.tally{display:grid;gap:7px}
+.tally .row{display:grid;grid-template-columns:1fr 150px 42px;gap:12px;align-items:center;font-size:13px}
+.tally .row div{height:18px;background:var(--panel2);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.tally .row div>i{display:block;height:100%;background:var(--gold-br)}
+.tally .row s{text-decoration:none;text-align:right;font-family:var(--mono);color:var(--gold);font-weight:700}
+
+/* ---------- results ---------- */
+.ivplot{display:grid;gap:12px}
+.iv{display:grid;grid-template-columns:200px minmax(0,1fr) 190px;gap:14px;align-items:center;font-size:13px}
+.iv .nm b{display:block;font-size:13.5px;color:var(--black)}
+.iv .nm span{color:var(--faint);font-size:11.5px}
+.iv .track{position:relative;height:34px;border:1px solid var(--line);border-radius:6px;background:var(--panel2)}
+.iv .zero{position:absolute;top:0;bottom:0;width:1px;background:var(--faint)}
+.iv .band{position:absolute;top:13px;height:8px;border-radius:4px;background:var(--gold-br)}
+.iv .band.ns{background:#c3c9d2}
+.iv .dot{position:absolute;top:9px;width:15px;height:15px;border-radius:50%;background:var(--black);
+  border:3px solid var(--gold-br);margin-left:-7px}
+.iv .dot.ns{background:#8a94a2;border-color:#c3c9d2}
+.iv .val{font-family:var(--mono);font-size:12.5px;text-align:right}
+.iv .val b{color:var(--gold);font-size:14px}
+.iv .val.ns b{color:var(--faint)}
+.iv .val span{display:block;color:var(--faint);font-size:11px}
+.axis{display:flex;justify-content:space-between;font:11px var(--mono);color:var(--faint);
+  margin-left:214px;margin-right:204px}
+.ceil{display:grid;grid-template-columns:200px 1fr 1fr;gap:10px;align-items:center;font-size:13px;margin-bottom:7px}
+.ceil .nm{color:var(--mute)}
+.ceil .b{position:relative;height:21px;background:var(--panel2);border:1px solid var(--line);border-radius:4px}
+.ceil .b i{position:absolute;top:0;bottom:0;background:var(--gold-br);border-radius:3px}
+.ceil .b i.gen{background:var(--black)}
+.ceil .b i.neg{background:#E7A9A6}
+.ceil .b s{position:absolute;right:6px;top:2px;text-decoration:none;font:700 11px var(--mono);color:var(--black)}
+@media(max-width:1180px){
+  .maufwrap,.fgrid{grid-template-columns:1fr}
+  .iv{grid-template-columns:1fr}
+  .axis{margin:0}
+  .ceil{grid-template-columns:1fr}
+}
+</style>
+</head><body>
+<header><div class="wrap bar">
+  <div class="brand"><span class="mk">G</span><span class="wm">GraMM-RAG</span></div>
+  <nav id="nav"></nav>
+</div></header>
+<main class="wrap" id="main"></main>
+<div class="modal" id="pdfModal"><div class="sheet">
+  <div class="mh"><b id="pdfTitle"></b><span id="pdfSub"></span>
+    <button class="act" onclick="closePdf()">Close</button></div>
+  <iframe id="pdfFrame" title="Source document"></iframe>
+</div></div>
+<footer><div class="wrap">
+  <span>Copyright &copy; 2026 <b>Wasiu Sanyaolu </b>&middot; Autonomous Technologies Lab, Bowie State University. All rights reserved.</span>
+  <span class="r">GraMM-RAG interactive portal &middot; every figure read from the archived runs</span>
+</div></footer>
+
+<script>
+const DATA={"cases":{"q507":{"qidx":507,"doc":{"hash":"8dfc21ec151fb9d3578fc32d5c4e5df9","title":"College Board Search, Help &amp; Reference","blurb":"US non-profit reference manual. Page 8 is the EPS geographic-market lookup table.","pages":18,"type":"Guidebook","elements":336,"by_type":{"section":201,"table":7,"text":112,"figure":16},"by_page":{"1":16,"2":3,"3":19,"4":8,"5":33,"6":24,"7":28,"8":17,"9":30,"10":11,"11":20,"12":30,"13":32,"15":29,"16":9,"17":10,"18":17},"temporal_elems":0},"question":{"text":"What's the geographic market name for EPS Code AR01?","gold":"Little Rock","gold_pages":[8],"evidence_sources":["Pure-text (Plain-text)"],"answer_format":"Str"},"parse":{"gold_page":8,"elements_on_gold_page":[{"id":"p8_e131","type":"figure","ro":131,"text":""},{"id":"p8_e132","type":"section","ro":132,"text":"EPS Code"},{"id":"p8_e133","type":"section","ro":133,"text":"Geographic Market Name"},{"id":"p8_e134","type":"section","ro":134,"text":"Arkansas (AR)"},{"id":"p8_e135","type":"section","ro":135,"text":"1. Little Rock AR01 2. Northern Arkansas AR02"},{"id":"p8_e136","type":"section","ro":136,"text":"New Mexico (NM)"},{"id":"p8_e137","type":"text","ro":137,"text":"1. Albuquerque and Northern New Mexico NM01 2. Southern New Mexico NM02"},{"id":"p8_e138","type":"section","ro":138,"text":"Oklahoma (OK)"},{"id":"p8_e139","type":"section","ro":139,"text":"1. Oklahoma City and Western Oklahoma OK01 2. Tulsa and Eastern Oklahoma OK02"},{"id":"p8_e140","type":"section","ro":140,"text":"Texas (TX)"},{"id":"p8_e141","type":"section","ro":141,"text":"EPS"},{"id":"p8_e142","type":"section","ro":142,"text":"1. Amarillo, Panhandle, and South Plains TX01 2. El Paso TX02 3. Midland, Odessa, and Trans Pecos TX03 4. Abilene and San Angelo TX04 5. Red River Area TX05 6. Austin and Central Texas TX06 7. Waco, Temple, and Killeen TX07 8. Eas"},{"id":"p8_e143","type":"section","ro":143,"text":"Geographic Market Name Code"},{"id":"p8_e144","type":"section","ro":144,"text":"16. Southwest Houston Metro Area TX16 17. City of Houston (East) TX17 18. Galveston and East Harris Counties TX18 19. City of Dallas TX19 20. City of Fort Worth TX20 21. Irving, Arlington, and Grand Prairie TX21 22. Dallas County "},{"id":"p8_e145","type":"section","ro":145,"text":"Major Metropolitan Area"},{"id":"p8_e146","type":"section","ro":146,"text":"Southwestern Region"},{"id":"p8_e147","type":"text","ro":147,"text":"1. Texas Greater San Antonio: 13 and 14 Greater Houston: 15 through 18 Greater Dallas \u2013 Fort Worth: 19 through 24"}]},"graph":{"nodes":336,"edges":{"reading_order":312,"hierarchy":135,"spatial":38},"total":485,"examples":{"reading_order":[["p1_e0","p1_e2"],["p1_e2","p1_e3"],["p1_e3","p1_e4"]],"hierarchy":[["p1_e0","p1_e1"],["p1_e2","p1_e3"],["p1_e4","p1_e5"]],"spatial":[["p1_e0","p1_e1"],["p1_e4","p1_e5"],["p1_e7","p1_e8"]]}},"retrieve":{"ranked_raw":[8,10,4,17,3,10,1,5,7,6],"ranked":[8,10,4,17,3,1,5,7,6],"route":"HYBRID"},"score":{"U":0.3254,"tau":0.0,"decision":"answer","refused":false},"arms":{"gramm":{"context":[3,8,11],"pred":"Little Rock","anls":1.0,"hit":true},"k3":{"context":[3,11,13],"pred":"Arkansas (AR)","anls":0.0,"hit":false},"k2":{"context":[3,11],"pred":"Arkansas","anls":0.0,"hit":false}},"components":{"C":0.5,"S":0.0634,"T":0.5,"w":[0.4,0.4,0.2],"U_recomputed":0.325357,"U_archived":0.3254,"note":"The run stored only the total, never the three component scores. They are recomputed here by restoring the archived retrieval configuration and re-scoring the same question, then checked against the stored total: they reproduce it to within 0.0001."},"subgraph":{"nodes":[{"id":"p8_e131","t":"figure","l":"[image]"},{"id":"p8_e132","t":"section","l":"EPS Code"},{"id":"p8_e133","t":"section","l":"Geographic Market Name"},{"id":"p8_e134","t":"section","l":"Arkansas (AR)"},{"id":"p8_e135","t":"section","l":"1. Little Rock AR01 2. Northern Arkans"},{"id":"p8_e136","t":"section","l":"New Mexico (NM)"},{"id":"p8_e137","t":"text","l":"1. Albuquerque and Northern New Mexico"},{"id":"p8_e138","t":"section","l":"Oklahoma (OK)"},{"id":"p8_e139","t":"section","l":"1. Oklahoma City and Western Oklahoma "},{"id":"p8_e140","t":"section","l":"Texas (TX)"},{"id":"p8_e141","t":"section","l":"EPS"},{"id":"p8_e142","t":"section","l":"1. Amarillo, Panhandle, and South Plai"},{"id":"p8_e143","t":"section","l":"Geographic Market Name Code"},{"id":"p8_e144","t":"section","l":"16. Southwest Houston Metro Area TX16 "}],"edges":[[1,2,"reading_order"],[2,3,"reading_order"],[3,4,"reading_order"],[4,5,"reading_order"],[5,6,"reading_order"],[6,7,"reading_order"],[7,8,"reading_order"],[8,9,"reading_order"],[9,10,"reading_order"],[10,11,"reading_order"],[11,12,"reading_order"],[12,13,"reading_order"],[5,6,"hierarchy"]],"page":8,"truncated":true},"label":"q507 \u00b7 the graph wins at a matched budget","evidence_text":"1. Little Rock AR01   2. Northern Arkansas AR02","evidence_note":"Page 8 is the EPS geographic-market lookup table. The answer is a row in it.","distractor":{"page":13,"text":"Support \u00b7 College Board Search Help \u00b7 News \u00b7 Quick-Start Guide \u00b7 Introduction to College Board Search\u2026","note":"The page-matched control spent its third page here, a navigation and overview page. It had the state heading from page 3 and no market table, so it answered with the state."},"headline":"Same budget. One page different. That page is the one the graph ranked first."},"q823":{"qidx":823,"doc":{"hash":"698bba535087fa9a7f9009e172a7f763","title":"Hamilton County, Nebraska Historic Buildings Survey","blurb":"US state historic-preservation survey. Page 11 carries a captioned location map.","pages":20,"type":"Research report / Introduction","elements":104,"by_type":{"figure":16,"text":70,"section":15,"table":3},"by_page":{"1":4,"3":6,"5":5,"7":6,"8":3,"9":8,"10":6,"11":6,"12":6,"13":8,"14":6,"15":5,"16":6,"17":6,"18":5,"19":11,"20":7},"temporal_elems":25},"question":{"text":"How many square miles does the Hamilton country covers according to the document? Give me an appropriate integer.","gold":"538","gold_pages":[11],"evidence_sources":["Pure-text (Plain-text)"],"answer_format":"Int"},"parse":{"gold_page":11,"elements_on_gold_page":[{"id":"p11_e38","type":"figure","ro":38,"text":"Figure 1. Location of Hamilton County and its communities."},{"id":"p11_e39","type":"text","ro":39,"text":"66-1/3 miles of lines were in operation in Hamilton County. By 1927, Hamilton County had direct railroad connection from \u201cAurora to Omaha, Lincoln, and other important cities of Nebraska,\u201d providing markets for farm products, \u201cesp"},{"id":"p11_e40","type":"text","ro":40,"text":"Several major automobile routes serve Hamilton County. State Highway 14 connects Central City to Aurora and continues on south, and US Highway 34 runs east to west from York to Grand Island across the county. Additionally, Interst"},{"id":"p11_e41","type":"text","ro":41,"text":"Hamilton County is located in the southeastern part of the state in a physical region known as the Central Loess Plains. Andreas (1882) in the History of the State of Nebraska described this area as the \u201cgarden portion of the stat"},{"id":"p11_e42","type":"section","ro":42,"text":"Initial Settlement and Ethnic Clusters"},{"id":"p11_e43","type":"text","ro":43,"text":"Hamilton County\u2019s first permanent settlement took place in June of 1866 on the"}]},"graph":{"nodes":104,"edges":{"reading_order":84,"hierarchy":85,"spatial":13,"temporal":38},"total":220,"examples":{"reading_order":[["p1_e1","p3_e4"],["p3_e4","p3_e5"],["p3_e5","p3_e6"]],"hierarchy":[["p3_e4","p3_e5"],["p3_e4","p3_e6"],["p3_e4","p3_e7"]],"spatial":[["p12_e44","p12_e45"],["p13_e55","p13_e54"],["p16_e72","p16_e71"]],"temporal":[["p5_e11","p15_e67","2008"],["p9_e30","p17_e79","2000"],["p10_e32","p14_e62","1900"]]}},"retrieve":{"ranked_raw":[11,12,12,15,17,19,1,17,19,13],"ranked":[11,12,15,17,19,1,13],"route":"HYBRID"},"score":{"U":0.4124,"tau":0.0,"decision":"answer","refused":false},"arms":{"gramm":{"context":[11,14,17],"pred":"538","anls":1.0,"hit":true},"k3":{"context":[11,14,17],"pred":"538","anls":1.0,"hit":true},"k2":{"context":[14,17],"pred":"552","anls":0.0,"hit":false}},"components":{"C":1.0,"S":0.0309,"T":0.0,"w":[0.4,0.4,0.2],"U_recomputed":0.412374,"U_archived":0.4124,"note":"The run stored only the total, never the three component scores. They are recomputed here by restoring the archived retrieval configuration and re-scoring the same question, then checked against the stored total: they reproduce it to within 0.0001."},"subgraph":{"nodes":[{"id":"p11_e38","t":"figure","l":"Figure 1. Location of Hamilton County "},{"id":"p11_e39","t":"text","l":"66-1/3 miles of lines were in operatio"},{"id":"p11_e40","t":"text","l":"Several major automobile routes serve "},{"id":"p11_e41","t":"text","l":"Hamilton County is located in the sout"},{"id":"p11_e42","t":"section","l":"Initial Settlement and Ethnic Clusters"},{"id":"p11_e43","t":"text","l":"Hamilton County\u2019s first permanent sett"}],"edges":[[1,2,"reading_order"],[2,3,"reading_order"],[3,4,"reading_order"],[4,5,"reading_order"],[4,5,"hierarchy"]],"page":11,"truncated":false},"label":"q823 \u00b7 the hallucination, and the confound that hides it","evidence_text":"Hamilton County is located in the southeastern part of the state\u2026 Hamilton County covers approximately 538 square miles and elevations range from 1,660 feet\u2026","evidence_note":"Page 11 carries both the figure \u201cFigure 1. Location of Hamilton County and its communities.\u201d and the paragraph holding the answer.","distractor":{"page":14,"text":"church in 1887 at a cost of roughly $3,000\u2026 Agriculture in Hamilton County\u2026","note":"The two-page control read pages 14 and 17, church history and vanished settlements. Both are about Hamilton County. Neither carries its area."},"headline":"The two-page control invented 552. The page-matched control found 538 on its own. Both facts matter."}},"mauf":{"mmlongbench":{"n":1088,"answerable":844,"unanswerable":244,"marginal":{"C":0.5678,"S":0.507,"T":0.484},"grid":[{"a":0.0,"b":0.0,"c":1.0,"auc":0.484},{"a":0.0,"b":0.05,"c":0.95,"auc":0.4845},{"a":0.0,"b":0.1,"c":0.9,"auc":0.4845},{"a":0.0,"b":0.15,"c":0.85,"auc":0.4845},{"a":0.0,"b":0.2,"c":0.8,"auc":0.4845},{"a":0.0,"b":0.25,"c":0.75,"auc":0.4845},{"a":0.0,"b":0.3,"c":0.7,"auc":0.4845},{"a":0.0,"b":0.35,"c":0.65,"auc":0.4845},{"a":0.0,"b":0.4,"c":0.6,"auc":0.4845},{"a":0.0,"b":0.45,"c":0.55,"auc":0.4845},{"a":0.0,"b":0.5,"c":0.5,"auc":0.4845},{"a":0.0,"b":0.55,"c":0.45,"auc":0.4845},{"a":0.0,"b":0.6,"c":0.4,"auc":0.4847},{"a":0.0,"b":0.65,"c":0.35,"auc":0.4851},{"a":0.0,"b":0.7,"c":0.3,"auc":0.4869},{"a":0.0,"b":0.75,"c":0.25,"auc":0.4883},{"a":0.0,"b":0.8,"c":0.2,"auc":0.4891},{"a":0.0,"b":0.85,"c":0.15,"auc":0.4918},{"a":0.0,"b":0.9,"c":0.1,"auc":0.495},{"a":0.0,"b":0.95,"c":0.05,"auc":0.5009},{"a":0.0,"b":1.0,"c":0.0,"auc":0.507},{"a":0.05,"b":0.0,"c":0.95,"auc":0.5205},{"a":0.05,"b":0.05,"c":0.9,"auc":0.5218},{"a":0.05,"b":0.1,"c":0.85,"auc":0.5219},{"a":0.05,"b":0.15,"c":0.8,"auc":0.52},{"a":0.05,"b":0.2,"c":0.75,"auc":0.5169},{"a":0.05,"b":0.25,"c":0.7,"auc":0.5141},{"a":0.05,"b":0.3,"c":0.65,"auc":0.5116},{"a":0.05,"b":0.35,"c":0.6,"auc":0.5093},{"a":0.05,"b":0.4,"c":0.55,"auc":0.5067},{"a":0.05,"b":0.45,"c":0.5,"auc":0.5048},{"a":0.05,"b":0.5,"c":0.45,"auc":0.5033},{"a":0.05,"b":0.55,"c":0.4,"auc":0.5022},{"a":0.05,"b":0.6,"c":0.35,"auc":0.5022},{"a":0.05,"b":0.65,"c":0.3,"auc":0.5034},{"a":0.05,"b":0.7,"c":0.25,"auc":0.5053},{"a":0.05,"b":0.75,"c":0.2,"auc":0.5073},{"a":0.05,"b":0.8,"c":0.15,"auc":0.5111},{"a":0.05,"b":0.85,"c":0.1,"auc":0.5169},{"a":0.05,"b":0.9,"c":0.05,"auc":0.5232},{"a":0.05,"b":0.95,"c":0.0,"auc":0.5297},{"a":0.1,"b":0.0,"c":0.9,"auc":0.5205},{"a":0.1,"b":0.05,"c":0.85,"auc":0.5218},{"a":0.1,"b":0.1,"c":0.8,"auc":0.5218},{"a":0.1,"b":0.15,"c":0.75,"auc":0.522},{"a":0.1,"b":0.2,"c":0.7,"auc":0.5219},{"a":0.1,"b":0.25,"c":0.65,"auc":0.5212},{"a":0.1,"b":0.3,"c":0.6,"auc":0.52},{"a":0.1,"b":0.35,"c":0.55,"auc":0.5185},{"a":0.1,"b":0.4,"c":0.5,"auc":0.5169},{"a":0.1,"b":0.45,"c":0.45,"auc":0.5158},{"a":0.1,"b":0.5,"c":0.4,"auc":0.5147},{"a":0.1,"b":0.55,"c":0.35,"auc":0.5151},{"a":0.1,"b":0.6,"c":0.3,"auc":0.5167},{"a":0.1,"b":0.65,"c":0.25,"auc":0.5192},{"a":0.1,"b":0.7,"c":0.2,"auc":0.5228},{"a":0.1,"b":0.75,"c":0.15,"auc":0.5285},{"a":0.1,"b":0.8,"c":0.1,"auc":0.5352},{"a":0.1,"b":0.85,"c":0.05,"auc":0.543},{"a":0.1,"b":0.9,"c":0.0,"auc":0.5474},{"a":0.15,"b":0.0,"c":0.85,"auc":0.5205},{"a":0.15,"b":0.05,"c":0.8,"auc":0.5218},{"a":0.15,"b":0.1,"c":0.75,"auc":0.5218},{"a":0.15,"b":0.15,"c":0.7,"auc":0.5218},{"a":0.15,"b":0.2,"c":0.65,"auc":0.5219},{"a":0.15,"b":0.25,"c":0.6,"auc":0.5221},{"a":0.15,"b":0.3,"c":0.55,"auc":0.5219},{"a":0.15,"b":0.35,"c":0.5,"auc":0.5215},{"a":0.15,"b":0.4,"c":0.45,"auc":0.5211},{"a":0.15,"b":0.45,"c":0.4,"auc":0.5215},{"a":0.15,"b":0.5,"c":0.35,"auc":0.523},{"a":0.15,"b":0.55,"c":0.3,"auc":0.5256},{"a":0.15,"b":0.6,"c":0.25,"auc":0.529},{"a":0.15,"b":0.65,"c":0.2,"auc":0.5341},{"a":0.15,"b":0.7,"c":0.15,"auc":0.5402},{"a":0.15,"b":0.75,"c":0.1,"auc":0.5484},{"a":0.15,"b":0.8,"c":0.05,"auc":0.5561},{"a":0.15,"b":0.85,"c":0.0,"auc":0.5611},{"a":0.2,"b":0.0,"c":0.8,"auc":0.5205},{"a":0.2,"b":0.05,"c":0.75,"auc":0.5218},{"a":0.2,"b":0.1,"c":0.7,"auc":0.5218},{"a":0.2,"b":0.15,"c":0.65,"auc":0.5218},{"a":0.2,"b":0.2,"c":0.6,"auc":0.5218},{"a":0.2,"b":0.25,"c":0.55,"auc":0.5219},{"a":0.2,"b":0.3,"c":0.5,"auc":0.5223},{"a":0.2,"b":0.35,"c":0.45,"auc":0.5234},{"a":0.2,"b":0.4,"c":0.4,"auc":0.5257},{"a":0.2,"b":0.45,"c":0.35,"auc":0.5282},{"a":0.2,"b":0.5,"c":0.3,"auc":0.5304},{"a":0.2,"b":0.55,"c":0.25,"auc":0.5355},{"a":0.2,"b":0.6,"c":0.2,"auc":0.5421},{"a":0.2,"b":0.65,"c":0.15,"auc":0.5494},{"a":0.2,"b":0.7,"c":0.1,"auc":0.5577},{"a":0.2,"b":0.75,"c":0.05,"auc":0.5643},{"a":0.2,"b":0.8,"c":0.0,"auc":0.5682},{"a":0.25,"b":0.0,"c":0.75,"auc":0.5205},{"a":0.25,"b":0.05,"c":0.7,"auc":0.5218},{"a":0.25,"b":0.1,"c":0.65,"auc":0.5218},{"a":0.25,"b":0.15,"c":0.6,"auc":0.5218},{"a":0.25,"b":0.2,"c":0.55,"auc":0.5224},{"a":0.25,"b":0.25,"c":0.5,"auc":0.5241},{"a":0.25,"b":0.3,"c":0.45,"auc":0.5251},{"a":0.25,"b":0.35,"c":0.4,"auc":0.526},{"a":0.25,"b":0.4,"c":0.35,"auc":0.53},{"a":0.25,"b":0.45,"c":0.3,"auc":0.5352},{"a":0.25,"b":0.5,"c":0.25,"auc":0.5425},{"a":0.25,"b":0.55,"c":0.2,"auc":0.5497},{"a":0.25,"b":0.6,"c":0.15,"auc":0.5556},{"a":0.25,"b":0.65,"c":0.1,"auc":0.5618},{"a":0.25,"b":0.7,"c":0.05,"auc":0.5684},{"a":0.25,"b":0.75,"c":0.0,"auc":0.5728},{"a":0.3,"b":0.0,"c":0.7,"auc":0.5205},{"a":0.3,"b":0.05,"c":0.65,"auc":0.5218},{"a":0.3,"b":0.1,"c":0.6,"auc":0.5242},{"a":0.3,"b":0.15,"c":0.55,"auc":0.5235},{"a":0.3,"b":0.2,"c":0.5,"auc":0.5239},{"a":0.3,"b":0.25,"c":0.45,"auc":0.5251},{"a":0.3,"b":0.3,"c":0.4,"auc":0.5285},{"a":0.3,"b":0.35,"c":0.35,"auc":0.5334},{"a":0.3,"b":0.4,"c":0.3,"auc":0.5416},{"a":0.3,"b":0.45,"c":0.25,"auc":0.5489},{"a":0.3,"b":0.5,"c":0.2,"auc":0.5536},{"a":0.3,"b":0.55,"c":0.15,"auc":0.5582},{"a":0.3,"b":0.6,"c":0.1,"auc":0.5643},{"a":0.3,"b":0.65,"c":0.05,"auc":0.5701},{"a":0.3,"b":0.7,"c":0.0,"auc":0.5746},{"a":0.35,"b":0.0,"c":0.65,"auc":0.5224},{"a":0.35,"b":0.05,"c":0.6,"auc":0.5237},{"a":0.35,"b":0.1,"c":0.55,"auc":0.5237},{"a":0.35,"b":0.15,"c":0.5,"auc":0.5249},{"a":0.35,"b":0.2,"c":0.45,"auc":0.5274},{"a":0.35,"b":0.25,"c":0.4,"auc":0.5316},{"a":0.35,"b":0.3,"c":0.35,"auc":0.5408},{"a":0.35,"b":0.35,"c":0.3,"auc":0.5487},{"a":0.35,"b":0.4,"c":0.25,"auc":0.5516},{"a":0.35,"b":0.45,"c":0.2,"auc":0.5548},{"a":0.35,"b":0.5,"c":0.15,"auc":0.5599},{"a":0.35,"b":0.55,"c":0.1,"auc":0.5646},{"a":0.35,"b":0.6,"c":0.05,"auc":0.5704},{"a":0.35,"b":0.65,"c":0.0,"auc":0.5747},{"a":0.4,"b":0.0,"c":0.6,"auc":0.5227},{"a":0.4,"b":0.05,"c":0.55,"auc":0.5247},{"a":0.4,"b":0.1,"c":0.5,"auc":0.5271},{"a":0.4,"b":0.15,"c":0.45,"auc":0.5294},{"a":0.4,"b":0.2,"c":0.4,"auc":0.5407},{"a":0.4,"b":0.25,"c":0.35,"auc":0.5489},{"a":0.4,"b":0.3,"c":0.3,"auc":0.5506},{"a":0.4,"b":0.35,"c":0.25,"auc":0.553},{"a":0.4,"b":0.4,"c":0.2,"auc":0.5563},{"a":0.4,"b":0.45,"c":0.15,"auc":0.56},{"a":0.4,"b":0.5,"c":0.1,"auc":0.564},{"a":0.4,"b":0.55,"c":0.05,"auc":0.5698},{"a":0.4,"b":0.6,"c":0.0,"auc":0.5745},{"a":0.45,"b":0.0,"c":0.55,"auc":0.5258},{"a":0.45,"b":0.05,"c":0.5,"auc":0.527},{"a":0.45,"b":0.1,"c":0.45,"auc":0.5407},{"a":0.45,"b":0.15,"c":0.4,"auc":0.5492},{"a":0.45,"b":0.2,"c":0.35,"auc":0.5499},{"a":0.45,"b":0.25,"c":0.3,"auc":0.5516},{"a":0.45,"b":0.3,"c":0.25,"auc":0.5533},{"a":0.45,"b":0.35,"c":0.2,"auc":0.5572},{"a":0.45,"b":0.4,"c":0.15,"auc":0.5604},{"a":0.45,"b":0.45,"c":0.1,"auc":0.5629},{"a":0.45,"b":0.5,"c":0.05,"auc":0.5687},{"a":0.45,"b":0.55,"c":0.0,"auc":0.5741},{"a":0.5,"b":0.0,"c":0.5,"auc":0.5367},{"a":0.5,"b":0.05,"c":0.45,"auc":0.549},{"a":0.5,"b":0.1,"c":0.4,"auc":0.5495},{"a":0.5,"b":0.15,"c":0.35,"auc":0.5503},{"a":0.5,"b":0.2,"c":0.3,"auc":0.5522},{"a":0.5,"b":0.25,"c":0.25,"auc":0.5548},{"a":0.5,"b":0.3,"c":0.2,"auc":0.5579},{"a":0.5,"b":0.35,"c":0.15,"auc":0.5607},{"a":0.5,"b":0.4,"c":0.1,"auc":0.5623},{"a":0.5,"b":0.45,"c":0.05,"auc":0.5678},{"a":0.5,"b":0.5,"c":0.0,"auc":0.5739},{"a":0.55,"b":0.0,"c":0.45,"auc":0.5479},{"a":0.55,"b":0.05,"c":0.4,"auc":0.5496},{"a":0.55,"b":0.1,"c":0.35,"auc":0.5523},{"a":0.55,"b":0.15,"c":0.3,"auc":0.5521},{"a":0.55,"b":0.2,"c":0.25,"auc":0.5557},{"a":0.55,"b":0.25,"c":0.2,"auc":0.5585},{"a":0.55,"b":0.3,"c":0.15,"auc":0.5605},{"a":0.55,"b":0.35,"c":0.1,"auc":0.562},{"a":0.55,"b":0.4,"c":0.05,"auc":0.567},{"a":0.55,"b":0.45,"c":0.0,"auc":0.5737},{"a":0.6,"b":0.0,"c":0.4,"auc":0.5496},{"a":0.6,"b":0.05,"c":0.35,"auc":0.5515},{"a":0.6,"b":0.1,"c":0.3,"auc":0.5537},{"a":0.6,"b":0.15,"c":0.25,"auc":0.5558},{"a":0.6,"b":0.2,"c":0.2,"auc":0.5595},{"a":0.6,"b":0.25,"c":0.15,"auc":0.5603},{"a":0.6,"b":0.3,"c":0.1,"auc":0.5619},{"a":0.6,"b":0.35,"c":0.05,"auc":0.5665},{"a":0.6,"b":0.4,"c":0.0,"auc":0.5737},{"a":0.65,"b":0.0,"c":0.35,"auc":0.5502},{"a":0.65,"b":0.05,"c":0.3,"auc":0.555},{"a":0.65,"b":0.1,"c":0.25,"auc":0.556},{"a":0.65,"b":0.15,"c":0.2,"auc":0.5605},{"a":0.65,"b":0.2,"c":0.15,"auc":0.5603},{"a":0.65,"b":0.25,"c":0.1,"auc":0.5617},{"a":0.65,"b":0.3,"c":0.05,"auc":0.5653},{"a":0.65,"b":0.35,"c":0.0,"auc":0.5737},{"a":0.7,"b":0.0,"c":0.3,"auc":0.5537},{"a":0.7,"b":0.05,"c":0.25,"auc":0.556},{"a":0.7,"b":0.1,"c":0.2,"auc":0.5604},{"a":0.7,"b":0.15,"c":0.15,"auc":0.5603},{"a":0.7,"b":0.2,"c":0.1,"auc":0.5613},{"a":0.7,"b":0.25,"c":0.05,"auc":0.5642},{"a":0.7,"b":0.3,"c":0.0,"auc":0.5736},{"a":0.75,"b":0.0,"c":0.25,"auc":0.5566},{"a":0.75,"b":0.05,"c":0.2,"auc":0.5605},{"a":0.75,"b":0.1,"c":0.15,"auc":0.5603},{"a":0.75,"b":0.15,"c":0.1,"auc":0.5612},{"a":0.75,"b":0.2,"c":0.05,"auc":0.5629},{"a":0.75,"b":0.25,"c":0.0,"auc":0.5736},{"a":0.8,"b":0.0,"c":0.2,"auc":0.5592},{"a":0.8,"b":0.05,"c":0.15,"auc":0.5601},{"a":0.8,"b":0.1,"c":0.1,"auc":0.5612},{"a":0.8,"b":0.15,"c":0.05,"auc":0.5621},{"a":0.8,"b":0.2,"c":0.0,"auc":0.5735},{"a":0.85,"b":0.0,"c":0.15,"auc":0.5588},{"a":0.85,"b":0.05,"c":0.1,"auc":0.5612},{"a":0.85,"b":0.1,"c":0.05,"auc":0.5613},{"a":0.85,"b":0.15,"c":0.0,"auc":0.5735},{"a":0.9,"b":0.0,"c":0.1,"auc":0.5599},{"a":0.9,"b":0.05,"c":0.05,"auc":0.5611},{"a":0.9,"b":0.1,"c":0.0,"auc":0.5735},{"a":0.95,"b":0.0,"c":0.05,"auc":0.5598},{"a":0.95,"b":0.05,"c":0.0,"auc":0.5735},{"a":1.0,"b":0.0,"c":0.0,"auc":0.5678}],"best":{"a":0.35,"b":0.65,"c":0.0,"auc":0.5747},"best_without_T":{"a":0.35,"b":0.65,"c":0.0,"auc":0.5747},"shipped":[0.4,0.4,0.2],"shipped_auc":0.5563},"docbench":{"n":1102,"answerable":978,"unanswerable":124,"marginal":{"C":0.7169,"S":0.5649,"T":0.4991},"grid":[{"a":0.0,"b":0.0,"c":1.0,"auc":0.4991},{"a":0.0,"b":0.05,"c":0.95,"auc":0.5184},{"a":0.0,"b":0.1,"c":0.9,"auc":0.5184},{"a":0.0,"b":0.15,"c":0.85,"auc":0.5184},{"a":0.0,"b":0.2,"c":0.8,"auc":0.5184},{"a":0.0,"b":0.25,"c":0.75,"auc":0.5184},{"a":0.0,"b":0.3,"c":0.7,"auc":0.5184},{"a":0.0,"b":0.35,"c":0.65,"auc":0.5184},{"a":0.0,"b":0.4,"c":0.6,"auc":0.5184},{"a":0.0,"b":0.45,"c":0.55,"auc":0.5184},{"a":0.0,"b":0.5,"c":0.5,"auc":0.5184},{"a":0.0,"b":0.55,"c":0.45,"auc":0.5185},{"a":0.0,"b":0.6,"c":0.4,"auc":0.5194},{"a":0.0,"b":0.65,"c":0.35,"auc":0.5227},{"a":0.0,"b":0.7,"c":0.3,"auc":0.529},{"a":0.0,"b":0.75,"c":0.25,"auc":0.5373},{"a":0.0,"b":0.8,"c":0.2,"auc":0.545},{"a":0.0,"b":0.85,"c":0.15,"auc":0.553},{"a":0.0,"b":0.9,"c":0.1,"auc":0.5577},{"a":0.0,"b":0.95,"c":0.05,"auc":0.5618},{"a":0.0,"b":1.0,"c":0.0,"auc":0.5649},{"a":0.05,"b":0.0,"c":0.95,"auc":0.5767},{"a":0.05,"b":0.05,"c":0.9,"auc":0.583},{"a":0.05,"b":0.1,"c":0.85,"auc":0.583},{"a":0.05,"b":0.15,"c":0.8,"auc":0.5811},{"a":0.05,"b":0.2,"c":0.75,"auc":0.5768},{"a":0.05,"b":0.25,"c":0.7,"auc":0.572},{"a":0.05,"b":0.3,"c":0.65,"auc":0.568},{"a":0.05,"b":0.35,"c":0.6,"auc":0.5639},{"a":0.05,"b":0.4,"c":0.55,"auc":0.5602},{"a":0.05,"b":0.45,"c":0.5,"auc":0.5571},{"a":0.05,"b":0.5,"c":0.45,"auc":0.5545},{"a":0.05,"b":0.55,"c":0.4,"auc":0.5538},{"a":0.05,"b":0.6,"c":0.35,"auc":0.5574},{"a":0.05,"b":0.65,"c":0.3,"auc":0.5638},{"a":0.05,"b":0.7,"c":0.25,"auc":0.5731},{"a":0.05,"b":0.75,"c":0.2,"auc":0.5845},{"a":0.05,"b":0.8,"c":0.15,"auc":0.5968},{"a":0.05,"b":0.85,"c":0.1,"auc":0.6076},{"a":0.05,"b":0.9,"c":0.05,"auc":0.6178},{"a":0.05,"b":0.95,"c":0.0,"auc":0.6242},{"a":0.1,"b":0.0,"c":0.9,"auc":0.5767},{"a":0.1,"b":0.05,"c":0.85,"auc":0.5835},{"a":0.1,"b":0.1,"c":0.8,"auc":0.583},{"a":0.1,"b":0.15,"c":0.75,"auc":0.5829},{"a":0.1,"b":0.2,"c":0.7,"auc":0.583},{"a":0.1,"b":0.25,"c":0.65,"auc":0.582},{"a":0.1,"b":0.3,"c":0.6,"auc":0.5811},{"a":0.1,"b":0.35,"c":0.55,"auc":0.5791},{"a":0.1,"b":0.4,"c":0.5,"auc":0.5768},{"a":0.1,"b":0.45,"c":0.45,"auc":0.5751},{"a":0.1,"b":0.5,"c":0.4,"auc":0.5772},{"a":0.1,"b":0.55,"c":0.35,"auc":0.5831},{"a":0.1,"b":0.6,"c":0.3,"auc":0.5923},{"a":0.1,"b":0.65,"c":0.25,"auc":0.6038},{"a":0.1,"b":0.7,"c":0.2,"auc":0.6182},{"a":0.1,"b":0.75,"c":0.15,"auc":0.6365},{"a":0.1,"b":0.8,"c":0.1,"auc":0.6541},{"a":0.1,"b":0.85,"c":0.05,"auc":0.6676},{"a":0.1,"b":0.9,"c":0.0,"auc":0.6721},{"a":0.15,"b":0.0,"c":0.85,"auc":0.5767},{"a":0.15,"b":0.05,"c":0.8,"auc":0.5835},{"a":0.15,"b":0.1,"c":0.75,"auc":0.5835},{"a":0.15,"b":0.15,"c":0.7,"auc":0.583},{"a":0.15,"b":0.2,"c":0.65,"auc":0.5829},{"a":0.15,"b":0.25,"c":0.6,"auc":0.583},{"a":0.15,"b":0.3,"c":0.55,"auc":0.583},{"a":0.15,"b":0.35,"c":0.5,"auc":0.5833},{"a":0.15,"b":0.4,"c":0.45,"auc":0.5871},{"a":0.15,"b":0.45,"c":0.4,"auc":0.5937},{"a":0.15,"b":0.5,"c":0.35,"auc":0.6033},{"a":0.15,"b":0.55,"c":0.3,"auc":0.6143},{"a":0.15,"b":0.6,"c":0.25,"auc":0.6288},{"a":0.15,"b":0.65,"c":0.2,"auc":0.6471},{"a":0.15,"b":0.7,"c":0.15,"auc":0.6681},{"a":0.15,"b":0.75,"c":0.1,"auc":0.6892},{"a":0.15,"b":0.8,"c":0.05,"auc":0.7026},{"a":0.15,"b":0.85,"c":0.0,"auc":0.7037},{"a":0.2,"b":0.0,"c":0.8,"auc":0.5767},{"a":0.2,"b":0.05,"c":0.75,"auc":0.5835},{"a":0.2,"b":0.1,"c":0.7,"auc":0.5835},{"a":0.2,"b":0.15,"c":0.65,"auc":0.5835},{"a":0.2,"b":0.2,"c":0.6,"auc":0.583},{"a":0.2,"b":0.25,"c":0.55,"auc":0.5835},{"a":0.2,"b":0.3,"c":0.5,"auc":0.5895},{"a":0.2,"b":0.35,"c":0.45,"auc":0.5985},{"a":0.2,"b":0.4,"c":0.4,"auc":0.6088},{"a":0.2,"b":0.45,"c":0.35,"auc":0.6205},{"a":0.2,"b":0.5,"c":0.3,"auc":0.6321},{"a":0.2,"b":0.55,"c":0.25,"auc":0.6498},{"a":0.2,"b":0.6,"c":0.2,"auc":0.6726},{"a":0.2,"b":0.65,"c":0.15,"auc":0.6941},{"a":0.2,"b":0.7,"c":0.1,"auc":0.7119},{"a":0.2,"b":0.75,"c":0.05,"auc":0.7236},{"a":0.2,"b":0.8,"c":0.0,"auc":0.7231},{"a":0.25,"b":0.0,"c":0.75,"auc":0.5767},{"a":0.25,"b":0.05,"c":0.7,"auc":0.5835},{"a":0.25,"b":0.1,"c":0.65,"auc":0.5835},{"a":0.25,"b":0.15,"c":0.6,"auc":0.5838},{"a":0.25,"b":0.2,"c":0.55,"auc":0.5934},{"a":0.25,"b":0.25,"c":0.5,"auc":0.6062},{"a":0.25,"b":0.3,"c":0.45,"auc":0.6151},{"a":0.25,"b":0.35,"c":0.4,"auc":0.6224},{"a":0.25,"b":0.4,"c":0.35,"auc":0.6319},{"a":0.25,"b":0.45,"c":0.3,"auc":0.6471},{"a":0.25,"b":0.5,"c":0.25,"auc":0.6704},{"a":0.25,"b":0.55,"c":0.2,"auc":0.6929},{"a":0.25,"b":0.6,"c":0.15,"auc":0.709},{"a":0.25,"b":0.65,"c":0.1,"auc":0.7251},{"a":0.25,"b":0.7,"c":0.05,"auc":0.7319},{"a":0.25,"b":0.75,"c":0.0,"auc":0.7339},{"a":0.3,"b":0.0,"c":0.7,"auc":0.5767},{"a":0.3,"b":0.05,"c":0.65,"auc":0.5835},{"a":0.3,"b":0.1,"c":0.6,"auc":0.6067},{"a":0.3,"b":0.15,"c":0.55,"auc":0.619},{"a":0.3,"b":0.2,"c":0.5,"auc":0.6208},{"a":0.3,"b":0.25,"c":0.45,"auc":0.6227},{"a":0.3,"b":0.3,"c":0.4,"auc":0.6298},{"a":0.3,"b":0.35,"c":0.35,"auc":0.6434},{"a":0.3,"b":0.4,"c":0.3,"auc":0.6675},{"a":0.3,"b":0.45,"c":0.25,"auc":0.689},{"a":0.3,"b":0.5,"c":0.2,"auc":0.7019},{"a":0.3,"b":0.55,"c":0.15,"auc":0.7183},{"a":0.3,"b":0.6,"c":0.1,"auc":0.7313},{"a":0.3,"b":0.65,"c":0.05,"auc":0.7343},{"a":0.3,"b":0.7,"c":0.0,"auc":0.7371},{"a":0.35,"b":0.0,"c":0.65,"auc":0.6144},{"a":0.35,"b":0.05,"c":0.6,"auc":0.6212},{"a":0.35,"b":0.1,"c":0.55,"auc":0.6213},{"a":0.35,"b":0.15,"c":0.5,"auc":0.6222},{"a":0.35,"b":0.2,"c":0.45,"auc":0.6255},{"a":0.35,"b":0.25,"c":0.4,"auc":0.6386},{"a":0.35,"b":0.3,"c":0.35,"auc":0.6676},{"a":0.35,"b":0.35,"c":0.3,"auc":0.6886},{"a":0.35,"b":0.4,"c":0.25,"auc":0.6962},{"a":0.35,"b":0.45,"c":0.2,"auc":0.7073},{"a":0.35,"b":0.5,"c":0.15,"auc":0.7255},{"a":0.35,"b":0.55,"c":0.1,"auc":0.7324},{"a":0.35,"b":0.6,"c":0.05,"auc":0.7354},{"a":0.35,"b":0.65,"c":0.0,"auc":0.7391},{"a":0.4,"b":0.0,"c":0.6,"auc":0.6148},{"a":0.4,"b":0.05,"c":0.55,"auc":0.6219},{"a":0.4,"b":0.1,"c":0.5,"auc":0.6237},{"a":0.4,"b":0.15,"c":0.45,"auc":0.6312},{"a":0.4,"b":0.2,"c":0.4,"auc":0.6679},{"a":0.4,"b":0.25,"c":0.35,"auc":0.6912},{"a":0.4,"b":0.3,"c":0.3,"auc":0.6949},{"a":0.4,"b":0.35,"c":0.25,"auc":0.7004},{"a":0.4,"b":0.4,"c":0.2,"auc":0.7152},{"a":0.4,"b":0.45,"c":0.15,"auc":0.7286},{"a":0.4,"b":0.5,"c":0.1,"auc":0.7327},{"a":0.4,"b":0.55,"c":0.05,"auc":0.7352},{"a":0.4,"b":0.6,"c":0.0,"auc":0.7388},{"a":0.45,"b":0.0,"c":0.55,"auc":0.6169},{"a":0.45,"b":0.05,"c":0.5,"auc":0.6239},{"a":0.45,"b":0.1,"c":0.45,"auc":0.6679},{"a":0.45,"b":0.15,"c":0.4,"auc":0.6939},{"a":0.45,"b":0.2,"c":0.35,"auc":0.6958},{"a":0.45,"b":0.25,"c":0.3,"auc":0.6978},{"a":0.45,"b":0.3,"c":0.25,"auc":0.7045},{"a":0.45,"b":0.35,"c":0.2,"auc":0.7228},{"a":0.45,"b":0.4,"c":0.15,"auc":0.7274},{"a":0.45,"b":0.45,"c":0.1,"auc":0.7318},{"a":0.45,"b":0.5,"c":0.05,"auc":0.7356},{"a":0.45,"b":0.55,"c":0.0,"auc":0.7388},{"a":0.5,"b":0.0,"c":0.5,"auc":0.6528},{"a":0.5,"b":0.05,"c":0.45,"auc":0.6953},{"a":0.5,"b":0.1,"c":0.4,"auc":0.6953},{"a":0.5,"b":0.15,"c":0.35,"auc":0.6962},{"a":0.5,"b":0.2,"c":0.3,"auc":0.6989},{"a":0.5,"b":0.25,"c":0.25,"auc":0.7135},{"a":0.5,"b":0.3,"c":0.2,"auc":0.7231},{"a":0.5,"b":0.35,"c":0.15,"auc":0.7262},{"a":0.5,"b":0.4,"c":0.1,"auc":0.7313},{"a":0.5,"b":0.45,"c":0.05,"auc":0.7361},{"a":0.5,"b":0.5,"c":0.0,"auc":0.7391},{"a":0.55,"b":0.0,"c":0.45,"auc":0.6885},{"a":0.55,"b":0.05,"c":0.4,"auc":0.6955},{"a":0.55,"b":0.1,"c":0.35,"auc":0.698},{"a":0.55,"b":0.15,"c":0.3,"auc":0.7009},{"a":0.55,"b":0.2,"c":0.25,"auc":0.7228},{"a":0.55,"b":0.25,"c":0.2,"auc":0.7224},{"a":0.55,"b":0.3,"c":0.15,"auc":0.7253},{"a":0.55,"b":0.35,"c":0.1,"auc":0.7309},{"a":0.55,"b":0.4,"c":0.05,"auc":0.7361},{"a":0.55,"b":0.45,"c":0.0,"auc":0.7396},{"a":0.6,"b":0.0,"c":0.4,"auc":0.6901},{"a":0.6,"b":0.05,"c":0.35,"auc":0.6984},{"a":0.6,"b":0.1,"c":0.3,"auc":0.7135},{"a":0.6,"b":0.15,"c":0.25,"auc":0.7222},{"a":0.6,"b":0.2,"c":0.2,"auc":0.7223},{"a":0.6,"b":0.25,"c":0.15,"auc":0.7246},{"a":0.6,"b":0.3,"c":0.1,"auc":0.7298},{"a":0.6,"b":0.35,"c":0.05,"auc":0.736},{"a":0.6,"b":0.4,"c":0.0,"auc":0.7398},{"a":0.65,"b":0.0,"c":0.35,"auc":0.6916},{"a":0.65,"b":0.05,"c":0.3,"auc":0.7219},{"a":0.65,"b":0.1,"c":0.25,"auc":0.7222},{"a":0.65,"b":0.15,"c":0.2,"auc":0.723},{"a":0.65,"b":0.2,"c":0.15,"auc":0.724},{"a":0.65,"b":0.25,"c":0.1,"auc":0.728},{"a":0.65,"b":0.3,"c":0.05,"auc":0.7354},{"a":0.65,"b":0.35,"c":0.0,"auc":0.7398},{"a":0.7,"b":0.0,"c":0.3,"auc":0.7152},{"a":0.7,"b":0.05,"c":0.25,"auc":0.7222},{"a":0.7,"b":0.1,"c":0.2,"auc":0.7236},{"a":0.7,"b":0.15,"c":0.15,"auc":0.7237},{"a":0.7,"b":0.2,"c":0.1,"auc":0.7264},{"a":0.7,"b":0.25,"c":0.05,"auc":0.7341},{"a":0.7,"b":0.3,"c":0.0,"auc":0.7398},{"a":0.75,"b":0.0,"c":0.25,"auc":0.7159},{"a":0.75,"b":0.05,"c":0.2,"auc":0.7235},{"a":0.75,"b":0.1,"c":0.15,"auc":0.7237},{"a":0.75,"b":0.15,"c":0.1,"auc":0.7246},{"a":0.75,"b":0.2,"c":0.05,"auc":0.7324},{"a":0.75,"b":0.25,"c":0.0,"auc":0.7398},{"a":0.8,"b":0.0,"c":0.2,"auc":0.7168},{"a":0.8,"b":0.05,"c":0.15,"auc":0.7238},{"a":0.8,"b":0.1,"c":0.1,"auc":0.7242},{"a":0.8,"b":0.15,"c":0.05,"auc":0.7302},{"a":0.8,"b":0.2,"c":0.0,"auc":0.7398},{"a":0.85,"b":0.0,"c":0.15,"auc":0.717},{"a":0.85,"b":0.05,"c":0.1,"auc":0.7242},{"a":0.85,"b":0.1,"c":0.05,"auc":0.7264},{"a":0.85,"b":0.15,"c":0.0,"auc":0.7398},{"a":0.9,"b":0.0,"c":0.1,"auc":0.7174},{"a":0.9,"b":0.05,"c":0.05,"auc":0.7243},{"a":0.9,"b":0.1,"c":0.0,"auc":0.7398},{"a":0.95,"b":0.0,"c":0.05,"auc":0.7175},{"a":0.95,"b":0.05,"c":0.0,"auc":0.7398},{"a":1.0,"b":0.0,"c":0.0,"auc":0.7169}],"best":{"a":0.6,"b":0.4,"c":0.0,"auc":0.7398},"best_without_T":{"a":0.6,"b":0.4,"c":0.0,"auc":0.7398},"shipped":[0.5,0.3,0.2],"shipped_auc":0.7231}},"corpus":{"headline":[{"bench":"MMLongBench-Doc","n":"1,091","metric":"ANLS","ctrl":0.3229,"gramm":0.3522,"delta":"+0.0293","ci":"[+0.0083, +0.0506]","sig":true},{"bench":"DocBench","n":"1,102","metric":"Judge accuracy","ctrl":0.5054,"gramm":0.5327,"delta":"+0.0272","ci":"[+0.0036, +0.0517]","sig":true},{"bench":"MP-DocVQA","n":"950","metric":"ANLS","ctrl":0.6983,"gramm":0.6978,"delta":"\u22120.0005","ci":"[\u22120.0167, +0.0160]","sig":false}],"localization":[{"bench":"MMLongBench-Doc","metric":"Context hit (n = 838)","ctrl":0.278,"gramm":0.4344,"delta":"+0.1563","ci":"[+0.1265, +0.1862]","ratio":"5.3\u00d7"},{"bench":"DocBench","metric":"Quote recall@5 (n = 730)","ctrl":0.4192,"gramm":0.5096,"delta":"+0.0904","ci":"[+0.0658, +0.1178]","ratio":"3.3\u00d7"},{"bench":"MP-DocVQA","metric":"Page hit@3 (n = 950)","ctrl":0.7347,"gramm":0.7189,"delta":"\u22120.0158","ci":"[\u22120.0358, +0.0032]","ratio":"none"}],"ceiling":{"rows":[{"k":"C \u00b7 entity coverage","mm":0.568,"db":0.717},{"k":"S \u00b7 semantic similarity","mm":0.507,"db":0.565},{"k":"T \u00b7 temporal coherence","mm":0.484,"db":0.499},{"k":"U as shipped","mm":0.556,"db":0.723},{"k":"Joint, 5-fold CV","mm":0.568,"db":0.728},{"k":"Generator, same pages","mm":0.806,"db":0.75}],"n":{"mm":"1,088","db":"1,102"},"three":"0.560 is the best balanced accuracy of any threshold on U. 0.574 is the best AUC from reweighting (0.568 cross-validated). 0.806 is both at once, because a binary decision\u2019s AUC equals (TPR + TNR) / 2."},"generator_side":[{"sig":"Sufficiency autorater","auc":"0.543","v":"Fails"},{"sig":"Log-probability, mean / min","auc":"0.255 / 0.272","v":"Inverted"},{"sig":"Self-consistency, k = 5","auc":"0.379","v":"Inverted"}],"register":[["Cost this project a claim it had made",15],["Removed an artifact that would have flattered the project",8],["Neutral or operational",4],["Enabled more work than the error would have permitted",1]],"arms":{"gramm":"GraMM-RAG","k3":"Flat-vector k=3 \u00b7 page-matched control","k2":"Flat-vector k=2 \u00b7 unmatched control"}},"falsifiers":[{"id":"F1","claim":"Gains hold on all three corpora.","test":"Re-run the dense control at the same three-page budget and re-measure.","reg":"Pre-registered before the matched run.","outcome":"NARROWED","verdict":"Two of three.","detail":"On MP-DocVQA the control\u2019s third page alone is worth +0.0320 ANLS [+0.0171, +0.0477], almost exactly the +0.0315 the original lead consisted of. The entire original margin was the page budget. The three-corpus claim became a two-corpus claim."},{"id":"F2","claim":"The graph advantage concentrates on cross-page evidence.","test":"Evidence-scope interaction contrast on MMLongBench-Doc.","reg":"Hypothesis and test written down before measurement.","outcome":"FALSIFIED","verdict":"Not supported.","detail":"The interaction is \u22120.0245 with an interval of [\u22120.0687, +0.0216]. It includes zero and does not exclude it in the predicted direction. Nothing was corrected, because nothing was wrong, the protocol worked and the idea died."},{"id":"F3","claim":"GraMM-RAG improves localization.","test":"Put a page-image retriever in the same harness.","reg":"Comparator fixed in advance.","outcome":"NARROWED","verdict":"Reference-relative.","detail":"ColPali reaches 0.800 context hit against GraMM-RAG\u2019s 0.434, and +0.1160 ANLS [+0.0852, +0.1499] over it. The claim that survives is narrower and is stated as such: GraMM-RAG leads the dense control, not the field."},{"id":"F4","claim":"The graph complements a strong page-image retriever.","test":"Union arm against a size-matched ColPali control at 5.22 pages.","reg":"The size-matched control was the missing control the register names.","outcome":"FALSIFIED","verdict":"Dilutes.","detail":"Given the same budget of its own next-ranked pages, ColPali reaches 0.5017 answerable ANLS against the union\u2019s 0.4804. The graph\u2019s contribution to the union is dilutive at that budget, not complementary."},{"id":"F5","claim":"The utility function decides abstention.","test":"Per-attribute AUC decomposition plus cross-validated reweighting.","reg":"Both specified before the decomposition ran.","outcome":"FALSIFIED","verdict":"Collapses to coverage.","detail":"Coverage alone equals the joint model on MMLongBench-Doc. Similarity sits at 0.507, chance. Temporal coherence is harmful at 0.484, dropping it lifts the score to 0.574, against 0.806 for the generator on identical pages."},{"id":"F6","claim":"A generator-side signal beats the retrieval-side ceiling.","test":"Three signals against a failure threshold of 0.614 fixed in advance.","reg":"Threshold and signals registered before measurement.","outcome":"FALSIFIED","verdict":"All fail; two inverted.","detail":"Best is the autorater at 0.543 with an upper bound of 0.5625, which excludes 0.614. Gold pages lift it only to 0.6098. Log-probability and self-consistency run backwards, confidence predicts unanswerable, because the model emits a short near-certain refusal."},{"id":"F7","claim":"RAG-Anything\u2019s localization advantage is an image effect.","test":"Re-run it on a zero-image corpus; the advantage should collapse.","reg":"Prediction recorded before the run.","outcome":"HELD","verdict":"Supported.","detail":"It collapsed: +0.0021 [\u22120.0074, +0.0116] at the retrieval level and \u22120.0103 [\u22120.0232, +0.0018] at the answer level. The interval is tight, so this is evidence of no difference rather than absence of power. Not every falsifier kills a claim."},{"id":"F8","claim":"GraMM-RAG is cheaper to prepare and to serve.","test":"A pre-registered cost falsifier on GPU hours and index size.","reg":"Falsifier written before the measurement.","outcome":"WITHDRAWN","verdict":"The falsifier fired.","detail":"Preparation is 1.50\u00d7 more expensive on GPU hours, 1.52\u00d7 including CPU, and the index is 1.57\u00d7 larger. Both sub-claims are decided against the system under study. The cost advantage was withdrawn."}]};
+/* ===================== GraMM-RAG portal ===================== */
+const $ = s => document.querySelector(s);
+const E = (t, c, h) => { const n = document.createElement(t); if (c) n.className = c; if (h != null) n.innerHTML = h; return n; };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const f4 = v => Number(v).toFixed(4);
+const f3 = v => Number(v).toFixed(3);
+
+const VIEWS = [
+  ['overview', 'Overview'],
+  ['pipeline', 'End-to-end pipeline'],
+  ['mauf', 'Utility function'],
+  ['falsify', 'Falsification'],
+  ['results', 'Results']
+];
+
+let current = 'overview';
+function go(id) {
+  current = id;
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === 'v-' + id));
+  document.querySelectorAll('#nav button').forEach(b => b.setAttribute('aria-current', b.dataset.v === id));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (id === 'mauf') drawTri();
+}
+function buildNav() {
+  const n = $('#nav');
+  VIEWS.forEach(([id, label]) => {
+    const b = E('button', null, label); b.dataset.v = id;
+    b.onclick = () => go(id); n.appendChild(b);
+  });
+}
+
+/* ---------- PDF modal ---------- */
+function openPdf(file, title, sub) {
+  $('#pdfTitle').textContent = title;
+  $('#pdfSub').textContent = sub;
+  $('#pdfFrame').src = 'portal_docs/' + file + '.pdf';
+  $('#pdfModal').classList.add('on');
+}
+function closePdf() { $('#pdfModal').classList.remove('on'); $('#pdfFrame').src = ''; }
+
+/* ================= OVERVIEW ================= */
+function viewOverview() {
+  const v = E('section', 'view on'); v.id = 'v-overview';
+  v.innerHTML = `
+  <div class="hero">
+    <div class="eyebrow">Doctoral research &middot; Autonomous Technologies Lab &middot; Bowie State University</div>
+    <h1>Graph-Augmented Multimodal Retrieval and the Limits of
+      <em>Abstention Prediction</em></h1>
+    <p>Every number in this portal is read from the shipped GraMM-RAG runs: three corpora,
+       3,143 questions, seven retrieval arms, one shared parse, generator, prompt, page budget,
+       scorer, judge and seed. Retrieval alone differs. Nothing here is simulated.</p>
+  </div>
+  <div class="kpis">
+    <div class="kpi"><b>2 of 3</b><span>corpora where graph retrieval still improves answers once the control reads as many pages</span></div>
+    <div class="kpi"><b>3&ndash;5&times;</b><span>more gain in evidence localization than in answer quality, where the gain holds</span></div>
+    <div class="kpi"><b>0.574 / 0.806</b><span>best retrieval-side answerability score against the generator reading the same pages</span></div>
+  </div>
+  <div class="tiles" id="tiles"></div>
+  <div class="sep"></div>
+  <div class="grid g3">
+    <div class="card"><h3>Use case</h3>
+      <p class="note">Step a real question through all eight stages, flip between two source
+      documents, and watch three retrieval arms answer the same question from different pages.</p></div>
+    <div class="card"><h3>Computation source</h3>
+      <p class="note">Archived run at <span class="mono">seed 42</span>, generator
+      <span class="mono">gpt-4.1-mini</span>, parses from the MinerU cache, utility attributes
+      recomputed behind a behavioural reproduction gate.</p></div>
+    <div class="card"><h3>Disclosure</h3>
+      <p class="note">The protocol withdrew a cost advantage, a three-corpus claim and a
+      localization leadership claim. All three are in here, with the falsifier that fired.</p></div>
+  </div>`;
+  const tiles = [
+    ['01', 'End-to-end pipeline', 'A real PDF through parse, graph, retrieval, scoring, assembly, generation and evaluation.', 'pipeline'],
+    ['02', 'Utility function', 'Every weighting of U = a&middot;C + b&middot;S + c&middot;T, searched. The optimum sits on an edge.', 'mauf'],
+    ['03', 'Falsification protocol', 'Seven claims, each with the experiment written down before the measurement.', 'falsify'],
+    ['04', 'Results', 'The headline deltas, the localization gap, and the abstention ceiling.', 'results']
+  ];
+  const t = v.querySelector('#tiles');
+  tiles.forEach(([n, title, sub, dest]) => {
+    const b = E('button', 'tile', `<b><i>${n}</i>${title}</b><span>${sub}</span>`);
+    b.onclick = () => go(dest); t.appendChild(b);
+  });
+  return v;
+}
+
+/* ================= PIPELINE ================= */
+let CASE = 'q507', STEP = 0, timer = null;
+
+function pageStrip(total, opts) {
+  const gold = opts.gold || [], ctx = opts.ctx || [], ranks = opts.ranks || {};
+  let h = '<div class="pstrip">';
+  for (let p = 1; p <= total; p++) {
+    const cls = ['pg'];
+    if (ctx.includes(p)) cls.push('ctx');
+    if (gold.includes(p)) cls.push('gold');
+    if (ranks[p] && !ctx.includes(p) && !gold.includes(p)) cls.push('rank');
+    h += `<div class="${cls.join(' ')}">${p}${ranks[p] ? `<i>${ranks[p]}</i>` : ''}</div>`;
+  }
+  return h + '</div>';
+}
+const LEGEND = `<div class="legend">
+  <span><b style="background:var(--gold-br)"></b>gold evidence page</span>
+  <span><b style="background:var(--black)"></b>page sent to the generator</span>
+  <span><b style="background:#fff;border-color:var(--blue)"></b>graph-leg rank</span>
+  <span><b style="background:#fff"></b>not retrieved</span></div>`;
+
+function bars(obj) {
+  const m = Math.max(...Object.values(obj));
+  return '<div class="bars">' + Object.entries(obj).sort((a, b) => b[1] - a[1]).map(([k, v]) =>
+    `<div class="bar"><u>${k}</u><div><i style="width:${Math.max(2, 100 * v / m)}%"></i></div><s>${v.toLocaleString()}</s></div>`
+  ).join('') + '</div>';
+}
+
+const NODE_COL = { section: '#0d1117', text: '#525c6b', figure: '#C8A95C', table: '#2F5FA8', equation: '#A8721B' };
+const EDGE_COL = { reading_order: '#b4bcc7', hierarchy: '#2F5FA8', spatial: '#A8721B', caption: '#C8A95C', temporal: '#1C7A4E' };
+
+function subgraphSvg(sg) {
+  const N = sg.nodes.length, W = 900, H = 430, cx = W / 2, cy = H / 2 + 4, R = Math.min(132, 44 + N * 7);
+  const pt = i => { const a = -Math.PI / 2 + 2 * Math.PI * i / N; return { x: cx + R * Math.cos(a), y: cy + R * Math.sin(a), a }; };
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Subgraph of the gold evidence page">`;
+  sg.edges.forEach(([i, j, t]) => {
+    const a = pt(i), b = pt(j), mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+    const qx = cx + (mx - cx) * 0.45, qy = cy + (my - cy) * 0.45;
+    s += `<path d="M${a.x.toFixed(1)},${a.y.toFixed(1)} Q${qx.toFixed(1)},${qy.toFixed(1)} ${b.x.toFixed(1)},${b.y.toFixed(1)}"
+      fill="none" stroke="${EDGE_COL[t] || '#ccc'}" stroke-width="${t === 'reading_order' ? 1.3 : 1.9}" opacity=".85"/>`;
+  });
+  sg.nodes.forEach((n, i) => {
+    const p = pt(i), out = Math.cos(p.a) >= 0;
+    const lx = cx + (R + 16) * Math.cos(p.a), ly = cy + (R + 16) * Math.sin(p.a);
+    s += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="9" fill="${NODE_COL[n.t] || '#888'}" stroke="#fff" stroke-width="2"/>`;
+    s += `<text x="${lx.toFixed(1)}" y="${(ly + 4).toFixed(1)}" font-size="11" fill="#525c6b"
+      text-anchor="${out ? 'start' : 'end'}">${esc(n.l.length > 26 ? n.l.slice(0, 26) + '…' : n.l)}</text>`;
+  });
+  s += `<text x="${cx}" y="${cy - 6}" font-size="12" fill="#8a94a2" text-anchor="middle">gold page ${sg.page || ''}</text>
+        <text x="${cx}" y="${cy + 13}" font-size="15" font-weight="700" fill="#0d1117" text-anchor="middle">${N} nodes | ${sg.edges.length} edges</text></svg>`;
+  const used = [...new Set(sg.edges.map(e => e[2]))];
+  return `<div class="gsvg">${s}</div>
+    <div class="legend" style="margin-top:9px">
+      ${used.map(t => `<span><b style="background:${EDGE_COL[t]}"></b>${t}</span>`).join('')}
+      ${Object.entries(NODE_COL).filter(([k]) => sg.nodes.some(n => n.t === k)).map(([k, c]) => `<span><b style="background:${c};border-radius:50%"></b>${k} node</span>`).join('')}
+    </div>`;
+}
+
+function armBlock(c, key, label, extra) {
+  const a = c.arms[key], me = key === 'gramm';
+  const ok = a.anls >= 0.5;
+  return `<div class="arm ${me ? 'me' : ''}">
+    <div class="hd"><b>${label}</b>
+      ${me ? '<span class="pill g">system under study</span>' : ''}
+      <span class="pill ${a.hit ? 'ok' : 'no'}">${a.hit ? 'gold page in context' : 'gold page missed'}</span>
+      <span class="ctxs">pages ${a.context.join(' | ')}</span></div>
+    ${extra === 'answer' ? `<div class="ans ${ok ? 'good' : 'bad'}">${esc(a.pred.length > 320 ? a.pred.slice(0, 320) + '…' : a.pred)}</div>` : ''}
+    ${extra === 'score' ? `<div class="ans ${ok ? 'good' : 'bad'}">ANLS <b style="color:${ok ? 'var(--good)' : 'var(--bad)'}">${f4(a.anls)}</b> &nbsp;|&nbsp; ${esc(a.pred.length > 150 ? a.pred.slice(0, 150) + '…' : a.pred)}</div>` : ''}
+    ${extra === 'ctx' ? pageStrip(c.doc.pages, { gold: c.question.gold_pages, ctx: a.context }) : ''}
+  </div>`;
+}
+
+function stages(c) {
+  const q = c.question, d = c.doc, ranks = {};
+  c.retrieve.ranked.forEach((p, i) => { if (!(p in ranks)) ranks[p] = i + 1; });
+  const goldRank = ranks[c.parse.gold_page];
+  const K = c.components, w = K.w;
+  const term = (sym, val, wt, label) => `<div class="tm"><b>${sym} = ${f4(val)}</b><span>${label}<br>weight ${wt.toFixed(2)} &rarr; ${f4(wt * val)}</span></div>`;
+
+  return [
+    { t: 'Raw corpus', s: 'The document, before anything is done to it',
+      src: '§3.3 | Table 3',
+      act: `A single PDF enters the pipeline. No OCR shortcuts, no pre-chunked text: ${d.pages} pages, parsed from the file itself. Every arm in the comparison reads this same file through this same parse, which is what makes a later difference attributable to retrieval.`,
+      meas: [['Document', d.hash.slice(0, 12) + '…'], ['Pages', d.pages], ['Corpus', 'MMLongBench-Doc'], ['Questions in corpus', '1,091'], ['Unanswerable', '244 (22.4%)']],
+      art: `<h4>Artifact | the page surface</h4>${pageStrip(d.pages, { gold: q.gold_pages })}
+        <p class="note" style="margin:0 0 10px"><b style="color:var(--gold)">${d.title}</b><br>${d.blurb}</p>
+        <p style="margin:0 0 12px"><button class="act pri" onclick="openPdf('${d.hash}','${d.title.replace(/'/g, '')}','${d.pages} pages | page ${q.gold_pages.join(', ')} holds the answer')">&#128196; Open the source PDF</button></p>
+        <div class="quote">${esc(q.text)}</div>
+        <p class="note">Gold answer <b class="mono" style="color:var(--gold)">${esc(q.gold)}</b> |
+        evidence on page <b class="mono" style="color:var(--gold)">${q.gold_pages.join(', ')}</b> |
+        annotated source ${q.evidence_sources.length ? q.evidence_sources.join(', ') : 'not annotated'} |
+        answer format ${q.answer_format}</p>`,
+      guide: `<b>Start here.</b> The whole demonstration is one question against one document. Open the PDF and look at page ${q.gold_pages.join(', ')}. It is the only page that holds the answer, and three retrieval arms will disagree about whether to send it to the generator.` },
+
+    { t: 'Parse', s: 'MinerU five-model chain into typed elements',
+      src: '§3.4 | Figure 2',
+      act: `Layout detection, OCR, formula and table extraction produce typed elements with bounding boxes and reading-order indices. Five node types survive into the graph: text, table, figure, equation, section. The temporal annotator runs here too, writing period markers onto elements.`,
+      meas: [['Elements parsed', d.elements], ['Text', d.by_type.text || 0], ['Section', d.by_type.section || 0], ['Figure', d.by_type.figure || 0], ['Table', d.by_type.table || 0], ['Carrying a period marker', d.temporal_elems]],
+      art: `<h4>Artifact | <span class="mono">parsed_elements.json</span>, page ${c.parse.gold_page}</h4>
+        <div class="scroller"><div class="els">${c.parse.elements_on_gold_page.map(e => {
+          const key = e.text && (c.evidence_text.slice(0, 24).includes(e.text.slice(0, 18)) || e.text.includes(q.gold));
+          return `<div class="el ${key ? 'key' : ''}"><b>${e.type}</b><u>ro ${e.ro}</u><span>${e.text ? esc(e.text) : '<i style="color:var(--faint)">[no text layer, image element]</i>'}</span></div>`;
+        }).join('')}</div></div>
+        <p class="note" style="margin-top:10px">${c.evidence_note}</p>`,
+      guide: `<b>${d.elements} elements, not ${d.pages} pages.</b> The parse is what the graph is built over, and the unit is an element. Everything downstream, from the typed relations to the page the generator finally sees, is derived from this list.` },
+
+    { t: 'Graph', s: 'Heterogeneous graph over the parsed elements',
+      src: '§3.5 | Table 4',
+      act: `Eight typed relations are defined; seven are deterministic. Reading order and hierarchy are dense and universal. Spatial proximity and caption linking, the two relations most specific to visual layout, turn out to be the two that barely materialise, which is a finding rather than a defect.`,
+      meas: [['Nodes', c.graph.nodes], ['Edges rebuilt', c.graph.total], ...Object.entries(c.graph.edges).map(([k, v]) => [k, v])],
+      art: `<h4>Artifact | the subgraph induced on the gold page</h4>
+        <div class="scroller">${subgraphSvg(c.subgraph)}
+        <h4 style="margin-top:14px">Typed relations across the whole document</h4>${bars(c.graph.edges)}
+        <p class="note" style="margin-top:12px">Rebuilt from the shipped parse using the same deterministic rules the system builds edges with. The node-level subgraph itself was never saved during the run. Co-reference, cross-page and the model-extracted triplet relation are not reconstructed here.</p>
+        ${c.graph.examples.temporal ? `<p class="note">Example temporal edge: <span class="mono">${c.graph.examples.temporal[0][0]} &harr; ${c.graph.examples.temporal[0][1]}</span>, both resolving to <mark>${c.graph.examples.temporal[0][2]}</mark></p>` : '<p class="note">No temporal edges on this document: nothing in it carries a resolvable period marker.</p>'}</div>`,
+      guide: `<b>Density is not usefulness.</b> ${c.graph.edges.temporal ? `This document produces ${c.graph.edges.temporal} temporal edges and the period mask runs on every query, yet no corpus here labels which questions depend on a period, so the mechanism is active and unmeasured.` : 'This document produces no temporal edges at all, which is why the temporal attribute sits at its neutral value when the utility function is scored at the next stage.'}` },
+
+    { t: 'Retrieve', s: 'HGT message passing, router, cross-encoder rerank',
+      src: '§3.6 | Figure 4',
+      act: `A two-layer Heterogeneous Graph Transformer passes messages with per-relation attention. A DeBERTa-v3 router was trained to choose between vector, graph and hybrid paths, then bypassed: ROUTE_ALL_HYBRID sends every question down the hybrid path, so the recorded route is an analysis annotation rather than a control signal.`,
+      meas: [['Recorded route', c.retrieve.route], ['Graph-leg top pages', c.retrieve.ranked.slice(0, 6).join(', ')], ['Gold page rank', goldRank ? '#' + goldRank : 'not in the top 10'], ['Rerank pool', '20'], ['HGT layers', '2']],
+      art: `<h4>Artifact | the graph leg's page ranking</h4>${pageStrip(d.pages, { gold: q.gold_pages, ranks })}${LEGEND}
+        <p class="note">Ranked pages, in order: <span class="mono" style="color:var(--gold)">${c.retrieve.ranked.join(' → ')}</span></p>
+        <p class="note">${goldRank === 1
+          ? `The graph ranks page <mark>${c.parse.gold_page}</mark> <b>first</b>. This is the measurement APPA scores.`
+          : goldRank ? `The graph ranks the gold page <mark>#${goldRank}</mark>.`
+          : `The gold page is <b style="color:var(--bad)">not</b> in the graph leg's ranking at all.`}</p>`,
+      guide: `<b>Two different quantities start here.</b> APPA scores this ranking. Context hit scores what the generator actually receives after page selection. They diverge the moment selection is not the identity, and the dissertation reports them separately for exactly that reason.` },
+
+    { t: 'Score', s: 'Multi-attribute Utility Function',
+      src: '§3.7 | Table 30',
+      act: `The retrieved subgraph is scored on entity coverage C, mean cosine similarity S, and three-valued temporal coherence T. If U exceeds the threshold the system answers; below it the system expands and re-scores; below it after expansion the system refuses.`,
+      meas: [['U(q, K)', f4(c.score.U)], ['Threshold τ', '0.0000'], ['Decision', c.score.decision], ['Refusals issued', '0 of 2,193'], ['Ceiling on U', '0.560 bal. acc.']],
+      art: `<h4>Artifact | the scalar, decomposed</h4>
+        <div class="ueq">
+          <div class="line">U(q,&nbsp;K) <s>=</s> <i>a</i>&middot;C <s>+</s> <i>b</i>&middot;S <s>+</s> <i>c</i>&middot;T</div>
+          <div class="terms">
+            ${term('C', K.C, w[0], 'entity coverage')}
+            ${term('S', K.S, w[1], 'semantic similarity')}
+            ${term('T', K.T, w[2], 'temporal coherence')}
+          </div>
+          <div class="sum">${f4(w[0] * K.C)} + ${f4(w[1] * K.S)} + ${f4(w[2] * K.T)} = <b>${f4(K.U_recomputed)}</b>
+            <s>archived U = ${f4(K.U_archived)} | threshold τ = 0.0000 | decision: answer</s></div>
+        </div>
+        <p class="note">${K.note}</p>
+        <p class="note">${K.C === 0.5 ? 'Coverage returns its neutral 0.5 because the question yields no extractable entities. ' : ''}${K.T === 0.5 ? 'Temporal coherence returns its neutral 0.5 because no retrieved node carries a period marker. ' : ''}${K.T === 0 ? 'Temporal coherence scores 0.0: the retrieved nodes carry periods that do not agree, so the term subtracts. ' : ''}Open the <a href="#" onclick="go('mauf');return false;">utility-function demo</a> to search every weighting of a, b and c yourself.</p>`,
+      guide: `<b>This is the stage the dissertation is named for.</b> The scoring function works as a retrieval-quality signal and fails as a refusal signal, and it fails in a way no reweighting repairs, because all three attributes are retrieval-side.` },
+
+    { t: 'Assemble', s: 'Union page context: append, do not replace',
+      src: '§3.12 | Proposition 3.1',
+      act: `Two cross-encoder pages plus one graph-selected page, appended rather than substituted. Budget: 3 pages, 12,000 characters, up to 3 images. The two control arms reach that budget by different routes. The page-matched control takes a third dense page; the unmatched control takes only two.`,
+      meas: [['Budget', '3 pages | 12,000 chars'], ['GraMM-RAG context', c.arms.gramm.context.join(', ')], ['Page-matched control', c.arms.k3.context.join(', ')], ['Unmatched control', c.arms.k2.context.join(', ')], ['Gold page delivered', [c.arms.gramm, c.arms.k3, c.arms.k2].filter(a => a.hit).length + ' of 3 arms']],
+      art: `<h4>Artifact | what each arm actually sends to the generator</h4>
+        <div class="arms">
+          ${armBlock(c, 'gramm', 'GraMM-RAG', 'ctx')}
+          ${armBlock(c, 'k3', 'Flat-vector k=3, page-matched', 'ctx')}
+          ${armBlock(c, 'k2', 'Flat-vector k=2, unmatched', 'ctx')}
+        </div>${LEGEND}
+        <p class="note" style="margin-top:10px"><b style="color:var(--gold)">Page ${c.distractor.page}:</b> ${c.distractor.note}</p>`,
+      guide: `<b>Equal budget is the whole argument.</b> The unmatched control reads two pages against three, so any margin it loses is partly the page budget rather than the retriever. That confound overstates the gains by 14 to 120 percent across the corpora, and on MP-DocVQA it accounts for the entire advantage.` },
+
+    { t: 'Generate', s: 'gpt-4.1-mini, quote-then-answer, temperature 0',
+      src: '§3.8 | Table 5',
+      act: `One generator, one prompt, one seed, for every arm. The only thing that differs between these three answers is which pages arrived. Whatever separates them is retrieval and nothing else.`,
+      meas: [['Generator', 'gpt-4.1-mini'], ['Temperature', '0'], ['Seed', '42'], ['Prompt', 'quote-then-answer'], ['Page images', 'up to 3 at 120 dpi']],
+      art: `<h4>Artifact | three answers to one question</h4>
+        <p class="note" style="margin-bottom:10px">Gold: <b class="mono" style="color:var(--gold)">${esc(q.gold)}</b></p>
+        <div class="arms">
+          ${armBlock(c, 'gramm', 'GraMM-RAG', 'answer')}
+          ${armBlock(c, 'k3', 'Flat-vector k=3, page-matched', 'answer')}
+          ${armBlock(c, 'k2', 'Flat-vector k=2, unmatched', 'answer')}
+        </div>`,
+      guide: `<b>${c.headline}</b>` },
+
+    { t: 'Evaluate', s: 'Score, test, and decide what may be claimed',
+      src: '§3.10 | Table 8',
+      act: `ANLS is a normalized Levenshtein similarity thresholded at 0.5, so a half-right answer scores zero rather than 0.5. Corpus deltas carry a paired bootstrap at 4,000 resamples, seed 42, and an interval excluding zero is the criterion used throughout. No result is called significant on a point estimate alone.`,
+      meas: [['GraMM-RAG ANLS', f4(c.arms.gramm.anls)], ['Page-matched control', f4(c.arms.k3.anls)], ['Unmatched control', f4(c.arms.k2.anls)], ['Corpus delta vs matched', '+0.0293'], ['95% interval', '[+0.0083, +0.0506]']],
+      art: `<h4>Artifact | the per-question verdict</h4>
+        <div class="arms">
+          ${armBlock(c, 'gramm', 'GraMM-RAG', 'score')}
+          ${armBlock(c, 'k3', 'Flat-vector k=3, page-matched', 'score')}
+          ${armBlock(c, 'k2', 'Flat-vector k=2, unmatched', 'score')}
+        </div>
+        <p class="note" style="margin-top:12px">One question is an anecdote. Across the corpus the matched
+        delta is <mark>+0.0293 ANLS</mark> with an interval of [+0.0083, +0.0506], while localization moves
+        <mark>+0.1563</mark> context hit, three to five times as much. Getting evidence to the generator
+        is necessary and far from sufficient.</p>`,
+      guide: c.qidx === 823
+        ? `<b>Read all three rows.</b> The two-page control fabricated <mark>552</mark>, a figure that appears nowhere in the document's text. The page-matched control found the same page GraMM-RAG did and answered correctly. The hallucination is real, and it belongs to the page budget rather than to the retriever. That is the confound, visible in one question.`
+        : `<b>Same budget, one page apart.</b> Both controls had pages 3 and 11. The page-matched arm spent its third page on navigation and answered with the state; GraMM-RAG spent its third page on the lookup table the graph ranked first. This is the comparison the whole evaluation is built to make.` }
+  ];
+}
+
+function renderPipeline() {
+  const c = DATA.cases[CASE], S = stages(c), s = S[STEP];
+  const rail = $('#rail'); rail.innerHTML = '';
+  S.forEach((st, i) => {
+    const b = E('button', i < STEP ? 'done' : '', `<em>${String(i + 1).padStart(2, '0')}</em><i>${st.t}</i>`);
+    b.setAttribute('aria-current', i === STEP);
+    b.onclick = () => { stop(); STEP = i; renderPipeline(); };
+    rail.appendChild(b);
+  });
+  $('#qhead').innerHTML = `
+    <div class="doc"><span class="pill g">${esc(c.doc.type)}</span>
+      <span class="pill">${c.doc.pages} pages</span>
+      <span class="pill">${c.doc.elements} parsed elements</span>
+      <span class="src">question ${c.qidx} of 1,091 | MMLongBench-Doc | archived run, seed 42</span></div>
+    <div class="q">${esc(c.question.text)}</div>
+    <div class="gold">Gold answer <b>${esc(c.question.gold)}</b> | evidence page ${c.question.gold_pages.join(', ')}</div>`;
+  $('#stageBody').innerHTML = `
+    <div class="top"><div class="no">${STEP + 1}</div>
+      <div class="ttl"><h2>${s.t}</h2><p>${s.s}</p></div>
+      <div class="src">${s.src}</div></div>
+    <div class="body">
+      <div class="left"><h4>What happens</h4><p>${s.act}</p>
+        <h4>Measured</h4><div class="meas">${s.meas.map(([k, v]) => `<div><span>${k}</span><span>${v}</span></div>`).join('')}</div></div>
+      <div class="right">${s.art}</div>
+    </div>`;
+  $('#guide').innerHTML = s.guide;
+  $('#prev').disabled = STEP === 0;
+  $('#next').disabled = STEP === S.length - 1;
+  document.querySelectorAll('.casebtn').forEach(b => b.setAttribute('aria-pressed', b.dataset.c === CASE));
+}
+function stop() { if (timer) { clearInterval(timer); timer = null; $('#play').innerHTML = '&#9654; Play all'; } }
+function play() {
+  if (timer) return stop();
+  $('#play').innerHTML = '&#10073;&#10073; Pause';
+  timer = setInterval(() => {
+    if (STEP >= 7) { stop(); return; }
+    STEP++; renderPipeline();
+  }, +$('#spd').value);
+}
+
+function viewPipeline() {
+  const v = E('section', 'view'); v.id = 'v-pipeline';
+  v.innerHTML = `
+    <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:12px">
+      <h2 style="font-size:23px">End-to-end pipeline</h2>
+      <span class="tiny">eight stages, one real question | three retrieval arms | arrow keys to step</span></div>
+    <div class="caserow" id="caserow"></div>
+    <div class="qhead" id="qhead"></div>
+    <div class="rail" id="rail"></div>
+    <div class="stage"><div id="stageBody"></div>
+      <div class="transport">
+        <button class="act" id="prev">&#9664; Back</button>
+        <button class="act pri" id="play">&#9654; Play all</button>
+        <button class="act" id="next">Next &#9654;</button>
+        <span class="spacer"></span>
+        <span class="tiny">pace</span>
+        <select id="spd" class="act" style="padding:7px 10px">
+          <option value="9000">slow</option><option value="6000" selected>normal</option><option value="3500">brisk</option>
+        </select>
+      </div></div>
+    <div class="guide" id="guide"></div>`;
+  return v;
+}
+function wirePipeline() {
+  const row = $('#caserow');
+  [['q507', 'q507 | the graph wins at a matched budget', 'Both arms read pages 3 and 11. The third differs: graph-picked page 8, the lookup table, against a dense page 13.'],
+   ['q823', 'q823 | a hallucination, and the confound that hides it', 'The two-page control invents a figure found nowhere in the document. The page-matched control finds the answer on its own.']
+  ].forEach(([id, t, s]) => {
+    const b = E('button', 'casebtn', `<b>${t}</b><span>${s}</span>`);
+    b.dataset.c = id;
+    b.onclick = () => { stop(); CASE = id; STEP = 0; renderPipeline(); };
+    row.appendChild(b);
+  });
+  $('#prev').onclick = () => { stop(); if (STEP > 0) { STEP--; renderPipeline(); } };
+  $('#next').onclick = () => { stop(); if (STEP < 7) { STEP++; renderPipeline(); } };
+  $('#play').onclick = play;
+  renderPipeline();
+}
+
+/* ================= MAUF ================= */
+let CORP = 'mmlongbench', W = [0.40, 0.40, 0.20], search = null, baseCorp = null;
+
+const TRI = { w: 560, h: 500, pad: 54 };
+function bary(a, b, c) {
+  const s = a + b + c || 1; a /= s; b /= s; c /= s;
+  const W2 = TRI.w - 2 * TRI.pad, H2 = TRI.h - 2 * TRI.pad - 26;
+  return { x: TRI.pad + W2 * (b + c / 2), y: TRI.pad + H2 * (1 - c) };
+}
+function heat(t) { // light grey -> deep gold
+  const lo = [238, 240, 243], hi = [143, 111, 30];
+  return `rgb(${lo.map((v, i) => Math.round(v + (hi[i] - v) * t)).join(',')})`;
+}
+function nearestGrid(d, a, b, c) {
+  let best = null, bd = 1e9;
+  for (const p of d.grid) { const t = (p.a - a) ** 2 + (p.b - b) ** 2 + (p.c - c) ** 2; if (t < bd) { bd = t; best = p; } }
+  return best;
+}
+function drawBase() {
+  const d = DATA.mauf[CORP], el = $('#tri'); if (!el) return;
+  const lo = Math.min(...d.grid.map(p => p.auc)), hi = Math.max(...d.grid.map(p => p.auc));
+  const P = bary(1, 0, 0), Q = bary(0, 1, 0), R = bary(0, 0, 1);
+  let s = `<svg viewBox="0 0 ${TRI.w} ${TRI.h}" role="img" aria-label="Weight simplex coloured by AUC">
+    <polygon points="${P.x},${P.y} ${Q.x},${Q.y} ${R.x},${R.y}" fill="#fcfcfd" stroke="#dde2e8"/>`;
+  for (const p of d.grid) {
+    const { x, y } = bary(p.a, p.b, p.c), t = (p.auc - lo) / (hi - lo || 1);
+    s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${p.c === 0 ? 7.5 : 6.5}" fill="${heat(t)}"
+      stroke="${p.c === 0 ? '#8F6F1E' : 'none'}" stroke-width="${p.c === 0 ? 1.2 : 0}"/>`;
+  }
+  const bp = bary(d.best.a, d.best.b, d.best.c), sp = bary(...d.shipped);
+  s += `<circle id="mBest" cx="${bp.x}" cy="${bp.y}" r="11" fill="none" stroke="#1C7A4E" stroke-width="2.5"/>
+        <circle id="mShip" cx="${sp.x}" cy="${sp.y}" r="9" fill="none" stroke="#2F5FA8" stroke-width="2.5"/>
+        <circle id="mCur" cx="${sp.x}" cy="${sp.y}" r="14" fill="none" stroke="#B3332F" stroke-width="3"
+          style="transition:cx .09s linear, cy .09s linear"/>
+        <text x="${P.x - 4}" y="${P.y + 24}" fill="#525c6b" font-size="13" text-anchor="middle">a = 1 | coverage</text>
+        <text x="${Q.x + 4}" y="${Q.y + 24}" fill="#525c6b" font-size="13" text-anchor="middle">b = 1 | similarity</text>
+        <text x="${R.x}" y="${R.y - 16}" fill="#525c6b" font-size="13" text-anchor="middle">c = 1 | temporal</text>
+        <text x="${(P.x + Q.x) / 2}" y="${P.y + 46}" fill="#8F6F1E" font-size="12" text-anchor="middle" font-weight="600">the c = 0 edge, where every optimum sits</text>
+      </svg>`;
+  el.innerHTML = s;
+  baseCorp = CORP;
+}
+function drawTri() {
+  if (baseCorp !== CORP) drawBase();
+  const d = DATA.mauf[CORP], cur = nearestGrid(d, W[0], W[1], W[2]);
+  const cp = bary(cur.a, cur.b, cur.c), m = $('#mCur');
+  if (m) { m.setAttribute('cx', cp.x.toFixed(1)); m.setAttribute('cy', cp.y.toFixed(1)); }
+  $('#auc').innerHTML = `${f4(cur.auc)}<small>AUC | ${CORP === 'mmlongbench' ? 'MMLongBench-Doc' : 'DocBench'}</small>`;
+  $('#wlab').innerHTML = `a = ${cur.a.toFixed(2)} | b = ${cur.b.toFixed(2)} | c = ${cur.c.toFixed(2)}`;
+  $('#cmp').innerHTML = `
+    <div><span>Shipped weights ${d.shipped.join(' / ')}</span><span>${f4(d.shipped_auc)}</span></div>
+    <div><span>Best found on the grid</span><span>${f4(d.best.auc)} at ${d.best.a} / ${d.best.b} / ${d.best.c}</span></div>
+    <div><span>Coverage C alone</span><span>${f4(d.marginal.C)}</span></div>
+    <div><span>Similarity S alone</span><span>${f4(d.marginal.S)}</span></div>
+    <div><span>Temporal T alone</span><span>${f4(d.marginal.T)}</span></div>
+    <div><span>Generator on identical pages</span><span>${CORP === 'mmlongbench' ? '0.8060' : '0.7500'}</span></div>`;
+  $('#verdict').innerHTML = cur.c === 0
+    ? 'Temporal term switched off. This edge contains the optimum on <b>both</b> corpora.'
+    : (cur.auc < d.best.auc - 0.0005
+      ? `Giving the temporal term weight costs <b>${f4(d.best.auc - cur.auc)}</b> AUC against the best point on the c = 0 edge.`
+      : 'At this weighting the temporal term is effectively inert.');
+}
+function runSearch() {
+  if (search) { clearInterval(search); search = null; $('#go').innerHTML = '&#8634; Grid search'; return; }
+  const d = DATA.mauf[CORP]; let i = 0, bestA = -1, bestP = null;
+  $('#go').innerHTML = '&#10073;&#10073; Stop';
+  search = setInterval(() => {
+    if (i >= d.grid.length) {
+      clearInterval(search); search = null; $('#go').innerHTML = '&#8634; Grid search';
+      W = [bestP.a, bestP.b, bestP.c]; syncSliders(); labelSliders(); drawTri();
+      $('#prog').innerHTML = `search complete | ${d.grid.length} weightings evaluated | best ${f4(bestA)} at c = ${bestP.c.toFixed(2)}`;
+      return;
+    }
+    const p = d.grid[i++];
+    if (p.auc > bestA) { bestA = p.auc; bestP = p; }
+    W = [p.a, p.b, p.c]; syncSliders(); labelSliders(); drawTri();
+    $('#prog').innerHTML = `evaluating ${i} of ${d.grid.length} | best so far ${f4(bestA)} at c = ${bestP.c.toFixed(2)}`;
+  }, 55);
+}
+function syncSliders() { ['a', 'b', 'c'].forEach((k, i) => { const s = $('#s' + k); if (s) s.value = Math.round(W[i] * 100); }); }
+function labelSliders() { ['a', 'b', 'c'].forEach((k, i) => { const l = $('#l' + k); if (l) l.textContent = W[i].toFixed(2); }); }
+function readSliders() {
+  const v = ['a', 'b', 'c'].map(k => +$('#s' + k).value);
+  const s = v.reduce((x, y) => x + y, 0) || 1;
+  W = v.map(x => x / s); labelSliders(); drawTri();
+}
+function viewMauf() {
+  const v = E('section', 'view'); v.id = 'v-mauf';
+  v.innerHTML = `
+    <div class="eyebrow">Demo 02 | the construct that collapses</div>
+    <h2 style="font-size:26px;margin-bottom:6px">Multi-attribute Utility Function</h2>
+    <p class="lead" style="margin:0 0 20px">Every point in the triangle is a real evaluation of
+    <span class="mono">U = a&middot;C + b&middot;S + c&middot;T</span> over the archived per-question attributes, scored as a
+    detector of answerability. Move the weights, or let the grid search run. The marginals reproduce
+    Table 31 to four decimals.</p>
+    <div class="corpbtns" style="margin-bottom:14px" id="corpbtns"></div>
+    <div class="maufwrap">
+      <div class="tri" id="tri"></div>
+      <div class="ctrls">
+        <div class="readout"><div class="big" id="auc"></div>
+          <div class="tiny mono" id="wlab" style="margin-top:6px;color:#aab3bf"></div>
+          <div class="cmp" id="cmp"></div></div>
+        <div class="card"><h3>Set the weights</h3>
+          <div class="sl"><div class="row"><span>a | entity coverage</span><b id="la"></b></div>
+            <input type="range" id="sa" min="0" max="100" value="40"></div>
+          <div class="sl" style="margin-top:12px"><div class="row"><span>b | semantic similarity</span><b id="lb"></b></div>
+            <input type="range" id="sb" min="0" max="100" value="40"></div>
+          <div class="sl" style="margin-top:12px"><div class="row"><span>c | temporal coherence</span><b id="lc"></b></div>
+            <input type="range" id="sc" min="0" max="100" value="20"></div>
+          <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+            <button class="act pri" id="go">&#8634; Grid search</button>
+            <button class="act" id="ship">Shipped weights</button>
+            <button class="act" id="zero">Jump to the optimum</button></div>
+          <p class="tiny mono" id="prog" style="margin:10px 0 0"></p>
+          <p class="tiny" style="margin:8px 0 0">The optimum found by the search lies on the c = 0 edge on
+          both corpora, so that button also switches the temporal term off.</p></div>
+        <div class="card"><h3>What the markers mean</h3>
+          <p class="note" style="margin:0">
+            <span style="color:#B3332F">&#9679;</span> your weighting &nbsp;
+            <span style="color:#2F5FA8">&#9679;</span> shipped &nbsp;
+            <span style="color:#1C7A4E">&#9679;</span> best on the grid<br>
+            Colour runs light grey to deep gold with AUC. The ringed points along the bottom edge are c = 0.</p></div>
+      </div></div>
+    <div class="guide" id="verdict" style="margin-top:16px"></div>
+    <div class="grid g3" style="margin-top:16px">
+      <div class="card"><h3>The significance of C</h3><p class="note">Coverage alone equals the joint
+        cross-validated model on MMLongBench-Doc. The cosine term, the one meant to be the
+        direct measure of semantic match, sits at 0.507, which is chance.</p></div>
+      <div class="card"><h3>Temporal term absence</h3><p class="note">Dropping the temporal term lifts
+        the score from 0.556 to 0.574. It contributes 14 to 15 percent of the score's variance while
+        costing roughly 0.018 in AUC, so it is harmful rather than merely inert.</p></div>
+      <div class="card"><h3>MP-DocVQA has no surface</h3><p class="note">That corpus carries no unanswerable
+        stratum at all, so there is no positive class, abstention AUC is undefined, and the threshold is
+        recorded as "not tunable (schema)".</p></div>
+    </div>`;
+  return v;
+}
+function wireMauf() {
+  const cb = $('#corpbtns');
+  [['mmlongbench', 'MMLongBench-Doc | n = 1,088'], ['docbench', 'DocBench | n = 1,102']].forEach(([id, t]) => {
+    const b = E('button', 'act', t); b.dataset.c = id;
+    b.setAttribute('aria-pressed', id === CORP);
+    b.onclick = () => {
+      if (search) runSearch();
+      CORP = id; cb.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x.dataset.c === id));
+      drawBase(); drawTri();
+    };
+    cb.appendChild(b);
+  });
+  ['a', 'b', 'c'].forEach(k => $('#s' + k).addEventListener('input', readSliders));
+  $('#go').onclick = runSearch;
+  $('#ship').onclick = () => { if (search) runSearch(); W = DATA.mauf[CORP].shipped.slice(); syncSliders(); labelSliders(); drawTri(); };
+  $('#zero').onclick = () => { if (search) runSearch(); const b = DATA.mauf[CORP].best; W = [b.a, b.b, b.c]; syncSliders(); labelSliders(); drawTri(); };
+  syncSliders(); labelSliders(); drawBase(); drawTri();
+}
+
+/* ================= FALSIFICATION ================= */
+let FSEL = 0, ftimer = null;
+const FALS = () => DATA.falsifiers.slice(0, 7);
+function renderFalsify() {
+  const f = FALS()[FSEL];
+  document.querySelectorAll('#flist button').forEach((b, i) => b.setAttribute('aria-pressed', i === FSEL));
+  $('#fbody').innerHTML = `
+    <div class="fstep on" id="fs0"><h5>Step 1 | the claim, as first written</h5><p>${f.claim}</p></div>
+    <div class="fstep" id="fs1"><h5>Step 2 | the falsifier, registered before measurement</h5><p>${f.test}<br>
+      <span class="tiny" style="color:var(--faint)">${f.reg}</span></p></div>
+    <div class="fstep" id="fs2"><h5>Step 3 | run it, and report whichever way it falls</h5><p>${f.detail}</p></div>
+    <div class="fstep" id="fs3"><h5>Step 4 | what happened to the claim</h5>
+      <div class="verdict"><span class="stamp ${f.outcome}">${f.outcome}</span>
+        <b style="font-size:15px">${f.verdict}</b></div>
+      <p class="tiny" style="color:var(--faint);margin:0">Register id ${f.id}. Every withdrawal is recorded
+      where the evidence that forced it is reported, under the wording it was first recorded in.</p></div>`;
+  $('#frun').innerHTML = '&#9654; Run the falsifier';
+}
+function runFalsifier() {
+  if (ftimer) { clearInterval(ftimer); ftimer = null; }
+  ['fs1', 'fs2', 'fs3'].forEach(id => { const e = $('#' + id); if (e) e.classList.remove('on'); });
+  let i = 1;
+  $('#frun').innerHTML = 'running…';
+  ftimer = setInterval(() => {
+    if (i > 3) { clearInterval(ftimer); ftimer = null; $('#frun').innerHTML = '&#8635; Run again'; return; }
+    const e = $('#fs' + i); if (e) e.classList.add('on');
+    i++;
+  }, 900);
+}
+function viewFalsify() {
+  const v = E('section', 'view'); v.id = 'v-falsify';
+  const reg = DATA.corpus.register;
+  v.innerHTML = `
+    <div class="eyebrow">Demo 03 | claims paired with the experiment most likely to refute them</div>
+    <h2 style="font-size:26px;margin-bottom:6px">The falsification protocol</h2>
+    <p class="lead" style="margin:0 0 20px">Each claim below was written down with its falsifier
+    <em>before</em> the measurement, and the outcome was reported whichever way it fell. Pick one and run it.</p>
+    <div class="fgrid">
+      <div class="flist" id="flist"></div>
+      <div>
+        <div class="card" style="margin-bottom:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <button class="act pri" id="frun">&#9654; Run the falsifier</button>
+          <span class="tiny">Each step appears as the protocol reaches it.</span></div>
+        <div id="fbody"></div>
+      </div></div>
+    <div class="sep"></div>
+    <div class="grid g2">
+      <div class="card"><h3>What the protocol cost, across all 28 classified corrections</h3>
+        <div class="tally" style="margin-top:12px">
+          ${reg.map(([k, n]) => `<div class="row"><span>${k}</span><div><i style="width:${100 * n / 15}%"></i></div><s>${n}</s></div>`).join('')}
+        </div>
+        <p class="note" style="margin-top:12px">Twenty-three of twenty-eight either cost a claim or removed
+        something that would have flattered the work. The register holds <b style="color:var(--gold)">81</b>
+        entries in total, of which <b style="color:var(--gold)">21</b> would have printed a plausible wrong number.</p></div>
+      <div class="card"><h3>Four error classes</h3>
+        <p class="note"><b style="color:var(--gold)">Provenance</b>
+        failures reuse an input without tracing it. <b style="color:var(--gold)">Referent</b> failures use a
+        correct number describing a different quantity. <b style="color:var(--gold)">Coincidence</b> failures
+        accept a numerical correspondence as confirmation. And
+        <b style="color:var(--gold)">claim-exceeds-computation</b> lives between the artifact and its
+        description, the one place a numerical check cannot look, and the class most likely to reach print,
+        because reviewers check tables and in every instance here the table was right.</p></div>
+    </div>`;
+  return v;
+}
+function wireFalsify() {
+  const L = $('#flist');
+  FALS().forEach((f, i) => {
+    const b = E('button', null, `<b><span class="ostamp ${f.outcome}">${f.outcome}</span> ${f.id}</b><span>${f.claim}</span>`);
+    b.onclick = () => { FSEL = i; renderFalsify(); }; L.appendChild(b);
+  });
+  $('#frun').onclick = runFalsifier;
+  renderFalsify();
+}
+
+/* ================= RESULTS ================= */
+function viewResults() {
+  const C = DATA.corpus, LOW = -0.02, HIGH = 0.06, span = HIGH - LOW;
+  const pos = x => (100 * (x - LOW) / span).toFixed(2) + '%';
+  const parseCI = s => s.replace(/[\[\]]/g, '').split(',').map(x => parseFloat(x.replace(/−/g, '-').trim()));
+  const iv = C.headline.map(r => {
+    const d = parseFloat(r.delta.replace(/−/g, '-')), ci = parseCI(r.ci);
+    return `<div class="iv"><div class="nm"><b>${r.bench}</b><span>${r.metric} | n = ${r.n}</span></div>
+      <div class="track"><div class="zero" style="left:${pos(0)}"></div>
+        <div class="band ${r.sig ? '' : 'ns'}" style="left:${pos(ci[0])};width:${(100 * (ci[1] - ci[0]) / span).toFixed(2)}%"></div>
+        <div class="dot ${r.sig ? '' : 'ns'}" style="left:${pos(d)}"></div></div>
+      <div class="val ${r.sig ? '' : 'ns'}"><b>${r.delta}</b><span>${r.ci}</span></div></div>`;
+  }).join('');
+  const ceilRow = (r) => {
+    const bar = (val, cls) => {
+      const w = Math.max(1, (val - 0.5) / 0.35 * 100), neg = val < 0.5;
+      return `<div class="b"><i class="${neg ? 'neg' : cls}" style="left:${neg ? Math.max(0, 100 + w) : 0}%;width:${Math.abs(w).toFixed(1)}%"></i><s>${f3(val)}</s></div>`;
+    };
+    const gen = r.k.startsWith('Generator');
+    return `<div class="ceil"><span class="nm">${r.k}</span>${bar(r.mm, gen ? 'gen' : '')}${bar(r.db, gen ? 'gen' : '')}</div>`;
+  };
+  const v = E('section', 'view'); v.id = 'v-results';
+  v.innerHTML = `
+    <div class="eyebrow">Demo 04 | what held, what did not</div>
+    <h2 style="font-size:26px;margin-bottom:6px">Results</h2>
+    <p class="lead" style="margin:0 0 22px">Every delta is GraMM-RAG minus the page-matched flat-vector
+    control, under a paired bootstrap at 4,000 resamples, seed 42. Per corpus, never pooled.</p>
+
+    <div class="card"><h3>Answer quality at a matched page budget <span class="src" style="margin-left:8px">Table 8</span></h3>
+      <div class="ivplot" style="margin-top:14px">${iv}</div>
+      <div class="axis" style="margin-top:8px"><span>&minus;0.02</span><span>0</span><span>+0.02</span><span>+0.04</span><span>+0.06</span></div>
+      <p class="note" style="margin-top:14px">Two of three corpora improve with intervals excluding zero.
+      <b style="color:var(--gold)">An unmatched control overstates these gains by 14 to 120 percent and accounts
+      for all of the MP-DocVQA advantage.</b></p></div>
+
+    <div class="grid g2" style="margin-top:16px">
+      <div class="card"><h3>Evidence moves more than answers <span class="src" style="margin-left:8px">Table 9</span></h3>
+        <table style="margin-top:10px"><thead><tr><th>Corpus</th><th>Localization</th>
+          <th class="num">Control</th><th class="num">GraMM</th><th class="num">&Delta;</th><th class="num">Ratio</th></tr></thead>
+          <tbody>${C.localization.map(r => `<tr><td>${r.bench}</td><td class="tiny">${r.metric}</td>
+            <td class="num">${f4(r.ctrl)}</td><td class="num">${f4(r.gramm)}</td>
+            <td class="num" style="color:var(--gold);font-weight:700">${r.delta}</td><td class="num">${r.ratio}</td></tr>`).join('')}</tbody></table>
+        <p class="note" style="margin-top:10px">Conversion efficiency on MMLongBench-Doc is
+        <b style="color:var(--gold)">0.188</b>, and no pairwise difference across arms is significant.
+        Delivered evidence is necessary and far from sufficient.</p></div>
+
+      <div class="card"><h3>The reference point decides the claim <span class="src" style="margin-left:8px">Table 18</span></h3>
+        <table style="margin-top:10px"><thead><tr><th>Metric</th><th class="num">Control</th>
+          <th class="num">GraMM</th><th class="num">ColPali</th></tr></thead><tbody>
+          <tr><td>Context hit | MMLongBench</td><td class="num">0.278</td><td class="num">0.434</td><td class="num" style="color:var(--gold);font-weight:700">0.800</td></tr>
+          <tr><td>ANLS | MMLongBench</td><td class="num">0.323</td><td class="num">0.352</td><td class="num" style="color:var(--gold);font-weight:700">0.468</td></tr>
+          <tr><td>Judge accuracy | DocBench</td><td class="num">0.505</td><td class="num">0.533</td><td class="num" style="color:var(--gold);font-weight:700">0.774</td></tr></tbody></table>
+        <p class="note" style="margin-top:10px">A page-image retriever beats GraMM-RAG by +0.1160 ANLS and
+        +0.2414 judge accuracy. A union of both looks complementary until ColPali gets the same 5.22 pages:
+        0.5017 against the union's 0.4804. The claim that survives is narrower, and is stated as such.</p></div>
+    </div>
+
+    <div class="card" style="margin-top:16px"><h3>The abstention ceiling
+      <span class="src" style="margin-left:8px">Table 31 | AUC for detecting answerability</span></h3>
+      <div class="ceil" style="margin-top:12px;color:var(--faint);font-size:11px">
+        <span></span><span>MMLongBench-Doc | n = ${C.ceiling.n.mm}</span><span>DocBench | n = ${C.ceiling.n.db}</span></div>
+      ${C.ceiling.rows.map(ceilRow).join('')}
+      <p class="tiny" style="margin-top:6px">Bars start at chance, 0.500. Pink runs below chance.</p>
+      <div class="guide" style="margin-top:12px"><b>Three numbers, one gap.</b> ${C.ceiling.three}</div>
+      <table style="margin-top:14px"><thead><tr><th>Generator-side signal, pre-registered</th>
+        <th class="num">AUC</th><th>Verdict</th></tr></thead><tbody>
+        ${C.generator_side.map(r => `<tr><td>${r.sig}</td><td class="num">${r.auc}</td>
+          <td><span class="pill no">${r.v}</span></td></tr>`).join('')}</tbody></table>
+      <p class="note" style="margin-top:10px">Failure threshold 0.614, fixed in advance. Gold pages lift the
+      autorater only to <b style="color:var(--gold)">0.6098</b>, so it is miscalibrated rather than starved.
+      Inverted signals detect a refusal already written. Abstention rankings invert between corpora at Kendall
+      &tau;-b &minus;0.828, so this is scoped to MMLongBench-Doc.</p>
+      <p class="note"><b style="color:var(--gold)">A second, independent witness.</b> Per question, U correlates
+      +0.17 with whether the gold page reached context and &minus;0.05 with answer quality. On DocBench, +0.29 against
+      +0.06. The score measures retrieval success, not answerability.</p></div>`;
+  return v;
+}
+
+/* ================= INIT ================= */
+(function init() {
+  buildNav();
+  const m = $('#main');
+  m.appendChild(viewOverview());
+  m.appendChild(viewPipeline());
+  m.appendChild(viewMauf());
+  m.appendChild(viewFalsify());
+  m.appendChild(viewResults());
+  wirePipeline(); wireMauf(); wireFalsify();
+  go('overview');
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closePdf();
+    if (current !== 'pipeline') return;
+    if (e.key === 'ArrowRight') { stop(); if (STEP < 7) { STEP++; renderPipeline(); } }
+    if (e.key === 'ArrowLeft') { stop(); if (STEP > 0) { STEP--; renderPipeline(); } }
+  });
+  $('#pdfModal').addEventListener('click', e => { if (e.target.id === 'pdfModal') closePdf(); });
+})();
+
+</script>
+</body></html>

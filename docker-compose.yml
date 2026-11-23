@@ -1,0 +1,8 @@
+services:
+  grammrag-portal:
+    build: .
+    image: grammrag-portal:latest
+    container_name: grammrag-portal
+    ports:
+      - "3350:80"
+    restart: unless-stopped
