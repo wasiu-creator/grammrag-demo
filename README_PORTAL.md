@@ -104,8 +104,3 @@ Edit copy and styling in `portal_head.html`, `portal_css2.html`, `portal_css3.ht
 Full-screen in any modern browser. The layout goes two-column at 1100 px and above, so a
 1920 × 1080 projector shows a whole stage without scrolling. Arrow keys step the pipeline.
 No network access is needed at any point.
-
-One caveat worth knowing before you hand someone the mouse: on q823 the page-matched control
-gets the answer right. That is the honest result and it is the point of the case — if a visitor
-asks why GraMM-RAG does not win there, the answer is that at an equal page budget it does not,
-and the 552 they just saw belongs to the two-page arm.
